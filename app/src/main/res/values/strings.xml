@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">Reportes de Operación</string>
+    <string name="open">Open Navegation Drawer</string>
+    <string name="close">Close Navegation Drawer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="textInfo">No se encuentran datos</string>
+    <string name="horarioAdmin">Horario de Administradores</string>
+    <string name="estadoTiendas">Estado de las tiendas</string>
+    <string name="client_id_console">6584227748-nn877ebbs0sp4osqk9r2vm9pc558mhnh.apps.googleusercontent.com</string>
+
+    <string-array name="motivo">
+        <item>Seleccionar</item>
+        <item>Domiciliario Accidentado</item>
+        <item>Domiciliario Accidentado</item>
+        <item>Domiciliario Varado</item>
+        <item>Falta de insumos (No ha llegado la comida)</item>
+        <item>Alta demanda de pedidos</item>
+        <item>Falta de energia</item>
+        <item>Daños de internet</item>
+        <item>Horno Dañado</item>
+
+    </string-array>
+
+    <string-array name="tipoevento">
+        <item>Bloquear</item>
+        <item>Desbloquear</item>
+
+
+    </string-array>
+
+    <string-array name="Desbloqueo">
+        <item value="15">15 minutos</item>
+        <item value="20">20 minutos</item>
+        <item value="30">30 minutos</item>
+        <item value="NUNCA">NUNCA</item>
+    </string-array>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+
+</resources>

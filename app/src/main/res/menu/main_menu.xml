@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<group>
+    <item  android:id="@+id/home" android:icon="@drawable/ic_baseline_home_24" android:title="Inicio"></item>
+    <item android:visible="false" android:id="@+id/reporteGeneral" android:icon="@drawable/ic_baseline_poll_24" android:title="Reporte General"></item>
+    <item android:visible="false" android:id="@+id/estado_tienda" android:icon="@drawable/ic_baseline_backup_table_24"
+        android:title="Estado Tiendas"> </item>
+    <item android:visible="false" android:id="@+id/operacion_venta" android:icon="@drawable/ic_baseline_receipt_24"
+        android:title="Operacion Venta"> </item>
+
+    <item android:visible="false" android:id="@+id/estado_pedido" android:icon="@drawable/ic_baseline_playlist_add_check_24"
+        android:title="Estado de pedidos"> </item>
+    <item android:visible="false" android:id="@+id/configurar_tiendas" android:icon="@drawable/ic_config_t"
+        android:title="Configurar tiendas"></item>
+
+    <item android:visible="false" android:id="@+id/egresos" android:icon="@drawable/ic_baseline_attach_money_24"
+        android:title="Egresos"></item>
+
+    <item android:visible="false" android:id="@+id/bloqueos" android:icon="@drawable/ic_bloqueo"
+        android:title="Bloqueos"></item>
+    <item android:visible="false" android:id="@+id/horario_admin" android:icon="@drawable/ic_baseline_date_range_24"
+        android:title="Horario de administradores"> </item>
+
+    <item android:visible="false" android:id="@+id/estadistica_promocion" android:icon="@drawable/ic_baseline_verified_24"
+        android:title="Venta de promociones"> </item>
+
+    <item android:visible="false" android:id="@+id/estadistica_plataforma" android:icon="@drawable/ic_baseline_legend_toggle_24"
+        android:title="Plataformas"> </item>
+
+    <item android:visible="false" android:id="@+id/encuesta_tienda" android:icon="@drawable/ic_baseline_ballot_24"
+        android:title="Encuesta"> </item>
+
+    <item  android:id="@+id/cerrar_sesion" android:icon="@drawable/ic_baseline_close_24"
+        android:title="Cerrar Sesion"></item>
+
+</group>
+
+</menu>

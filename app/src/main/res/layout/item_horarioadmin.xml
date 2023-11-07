@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="8dp"
+    android:paddingTop="8dp">
+
+    <ImageView
+        android:id="@+id/id_img"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_baseline_account_circle_24"
+        android:layout_centerVertical="true" />
+
+    <TextView
+        android:id="@+id/nombre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="56dp"
+        android:text="Nombre"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        tools:text="Alexander Pierrot" />
+
+    <TextView
+        android:id="@+id/fechahora"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/nombre"
+        android:layout_below="@+id/nombre"
+        android:text="Cargo"
+        tools:text="CEO" />
+
+    <TextView
+        android:id="@+id/tienda"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/fechahora"
+        android:layout_below="@+id/fechahora"
+        android:text="Compañía"
+        tools:text="Blue Insurances Ltd" />
+    <TextView
+        android:id="@+id/tipoevento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tienda"
+        android:layout_below="@+id/tienda"
+        android:text="Compañía"
+        tools:text="Blue Insurances Ltd" />
+
+</RelativeLayout>

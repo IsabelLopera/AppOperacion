@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "6584227748",
+    "project_id": "appoperaciones-190c0",
+    "storage_bucket": "appoperaciones-190c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:6584227748:android:eb8e8b9f02ed9fbfe99331",
+        "android_client_info": {
+          "package_name": "com.example.appoperaciones"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "6584227748-irr0e56jervuiap030rft2uql78cfs4k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwkBS3y7EBSRzMUKwPeSO4XIlDJqEzTG8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "6584227748-irr0e56jervuiap030rft2uql78cfs4k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

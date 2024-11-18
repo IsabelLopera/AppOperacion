@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
@@ -64,7 +65,10 @@ public class RecyclerEgresos extends  RecyclerView.Adapter<RecyclerEgresos.ViewH
             }
             holder.descripcion.setText(lista.get(position).getString("descripcion"));
             holder.fecha.setText(Html.fromHtml("<b>Fecha: </b>"+lista.get(position).getString("fecha")));
-            holder.valoregreso.setText(Html.fromHtml("<b>Valor: </b>"+lista.get(position).getString("valoregreso")));
+            int valorEgreso = lista.get(position).getInt("valoregreso");
+            String valorEgresoFormateado = NumberFormat.getInstance().format(valorEgreso);
+            String textoFormateado = "<b>Valor: </b>" + valorEgresoFormateado;
+            holder.valoregreso.setText(Html.fromHtml(textoFormateado));
             holder.usuario.setText(Html.fromHtml("<b>Usuario: </b>"+lista.get(position).getString("usuario")));
             holder.tipoegreso.setText(Html.fromHtml("<b>Tipo: </b>"+lista.get(position).getString("tipoegreso")));
 

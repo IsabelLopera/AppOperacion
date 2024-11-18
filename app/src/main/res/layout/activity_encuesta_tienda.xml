@@ -18,10 +18,15 @@
     android:weightSum="3"
     android:padding="10dp">
     <TextView
-        android:id="@+id/encabezado"
+        android:id="@+id/nombre_tienda"
         android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_gravity="center"
         android:layout_height="wrap_content"
-        android:layout_weight="0.1"/>
+        android:layout_weight="0.1"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/gris"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_marginTop="10dp"

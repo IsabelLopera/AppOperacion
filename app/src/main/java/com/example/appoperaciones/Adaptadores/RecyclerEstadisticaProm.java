@@ -1,6 +1,5 @@
 package com.example.appoperaciones.Adaptadores;
 
-import android.graphics.Color;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.appoperaciones.Clases.Tienda;
 import com.example.appoperaciones.R;
 import com.google.gson.JsonObject;
 

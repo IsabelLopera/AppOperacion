@@ -11,12 +11,17 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +29,7 @@ import com.example.appoperaciones.Adaptadores.RecyclerEncuestaTienda;
 import com.example.appoperaciones.Servicios.InsertarDetalleEncuestaTiendasAPP;
 import com.example.appoperaciones.Servicios.InsertarEncabezadoEncuestaTiendasAPP;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
@@ -32,70 +38,84 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.sql.SQLTransactionRollbackException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 
 public class EncuestaTiendaActivity extends AppCompatActivity {
     private Type type = new TypeToken<ArrayList<JsonObject>>(){}.getType();
     ArrayList<JsonObject> datos = new ArrayList<>();
     RecyclerView recyclerView;
-    RecyclerEncuestaTienda recyclerEncuestaTienda;
+    public static  RecyclerEncuestaTienda recyclerEncuestaTienda;
     Button enviarEncuestas;
     String idtienda;
-    ArrayList<JsonObject> ListElement = new ArrayList<>();
+    String idempleado;
+    String idencuesta;
+    boolean is_observ;
+    ArrayList<JSONObject> ListElement = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_encuesta_tienda);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         String data_json = getIntent().getStringExtra("datos");
-        String encabezadotxt = getIntent().getStringExtra("encabezado");
+        String nom_tienda = getIntent().getStringExtra("nom_tienda");
+        is_observ = getIntent().getBooleanExtra("is_observ",false);
         idtienda = getIntent().getStringExtra("idtienda");
-
+        idempleado = getIntent().getStringExtra("idempleado");
+        idencuesta = getIntent().getStringExtra("idencuesta");
+        System.out.println(data_json);
         datos = new Gson().fromJson(data_json, type);
+        Collections.sort(datos, new Comparator<JsonObject>() {
+            @Override
+            public int compare(JsonObject obj1, JsonObject obj2) {
+                int clave1 = obj1.get("orden").getAsInt();
+                int clave2 = obj2.get("orden").getAsInt();
+
+                // Comparar los valores numéricos de "clave" y devolver el resultado de la comparación
+                return Integer.compare(clave1, clave2);
+            }
+        });
+
+        ArrayList<JSONObject> datosJSONObject = new ArrayList<>();
+        try {
+
+            for (JsonObject jsonObject : datos) {
+                JSONObject J = new JSONObject(jsonObject.toString());
+                J.put("noaplica",false);
+                J.put("isobs",is_observ);
+                J.put("observacionadi","");
+                J.put("observacion","");
+                datosJSONObject.add(J);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         recyclerView = findViewById(R.id.recyclerview);
         enviarEncuestas = findViewById(R.id.enviarEncuesta);
-        TextView encabezado = findViewById(R.id.encabezado);
-        encabezado.setText(encabezadotxt);
+        TextView nombre_tienda = findViewById(R.id.nombre_tienda);
+        nombre_tienda.setText(nom_tienda);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerEncuestaTienda = new RecyclerEncuestaTienda(datos, this);
+       // recyclerView.setHasFixedSize(true);
+        recyclerEncuestaTienda = new RecyclerEncuestaTienda(datosJSONObject, this);
         recyclerView.setAdapter(recyclerEncuestaTienda);
 
         enviarEncuestas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ListElement = recyclerEncuestaTienda.getLista();
-                int position = 0;
-                boolean abrirDialog = true;
-                for(int i =0; ListElement.size() > i; i++){
-                    JsonObject jsonObject = ListElement.get(i);
-                    if (jsonObject.get("valordefecto").getAsDouble() <= 3){
-                        if(jsonObject.has("observacionadi")){
-                            if(jsonObject.get("observacionadi").getAsString().equals("")){
-                                abrirDialog =false;
-                                position = i;
-                                break;
-                            }
-                        }else{
-                            abrirDialog =false;
 
-                        }
-                    }else{
-                        jsonObject.addProperty("observacionadi","");
-                    }
-
-
-                }
-
-                    // Posicionar el RecyclerView en el primer elemento sin diligenciar
-                if (abrirDialog) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                     builder.setTitle("¿Estas seguro de enviar la encuesta?");
                     builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            InsertarEncabezadoEncuestaTiendas();
+                            if(obtenerPosicion() == -1){
+                               InsertarEncabezadoEncuestaTiendas();
+                            }
                             dialogInterface.dismiss();
                         }
                     });
@@ -106,17 +126,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
                         }
                     });
                     builder.show();
-                }else{
-                    recyclerView.smoothScrollToPosition(position);
-                    /*View itemView = recyclerView.getLayoutManager().findViewByPosition(position);
-                    if (itemView != null) {
 
-                        EditText editTextObser = itemView.findViewById(R.id.observacionadi);
-                        editTextObser.setHintTextColor(Color.RED);
-                    }*/
-                    Toast.makeText(getApplicationContext(), "Debe diligenciar el campo observacion", Toast.LENGTH_LONG).show();
-
-                }
 
             }
         });
@@ -137,6 +147,54 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
 
     }
 
+
+    public int obtenerPosicion() {
+        ArrayList<JSONObject>  list  = new ArrayList<>();
+        try{
+            for (int i = 0; i < recyclerEncuestaTienda.getLista().size(); i++) {
+                JSONObject element = recyclerEncuestaTienda.getLista().get(i);
+
+                boolean isobs = element.getBoolean("isobs");
+                String  tiporespuesta = element.getString("tiporespuesta");
+                String obs = element.getString("observacion");
+                String obs_adi = element.getString("observacionadi");
+                boolean noaplica = element.getBoolean("noaplica");
+
+                    if (isobs) {
+                        if (obs_adi.isEmpty()) {
+                            recyclerView.smoothScrollToPosition(i);
+                            Toast.makeText(getApplicationContext(), "Complete todos los campos requeridos.", Toast.LENGTH_SHORT).show();
+                            return i;
+                        }
+                    }else{
+                        element.put("observacionadi", "");
+                    }
+
+                    if(tiporespuesta.equals("EDITXT")){
+                        if (obs.isEmpty()) {
+                            recyclerView.smoothScrollToPosition(i);
+                            Toast.makeText(getApplicationContext(), "Complete todos los campos requeridos.", Toast.LENGTH_SHORT).show();
+                            return i;
+                        }
+                    }
+
+                    if(noaplica){
+                        element.put("valordefecto", -1);
+                    }
+
+
+                list.add(element);
+            }
+
+            ListElement = list;
+            System.out.println(ListElement);
+
+        }catch (JSONException e){
+         e.printStackTrace();
+        }
+
+        return -1;
+    }
 
     public void InsertarEncabezadoEncuestaTiendas(){
         //dialogo de confirmacion
@@ -163,7 +221,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
                             // Recorrer la lista de elementos
                     int count = 0;
 
-                    for (JsonObject item : ListElement) {
+                    for (JSONObject item : ListElement) {
                         InsertarDetalleEncuestaTiendasAPP service2 =new InsertarDetalleEncuestaTiendasAPP(getApplicationContext());
                         service2.setAsyncTaskListener(new AsyncTaskListener() {
 
@@ -179,16 +237,22 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
                             }
                         });
 
-                        String idencuestadetalle = item.get("idencuestadetalle").getAsString();
-                        String observacionadi = item.get("observacionadi").getAsString();
+                        String idencuestadetalle = item.getString("idencuestadetalle");
+                        String observacionadi = item.getString("observacionadi");
                         String valorseleccionado = "";
+                        double valor = item.getDouble("valordefecto");
+                        String  observacion = item.getString("observacion");
 
-                        double valor = item.get("valordefecto").getAsDouble();
-                        if (valor == Math.floor(valor)) {
-                            valorseleccionado = String.valueOf((int)valor);
+                        if(observacion.isEmpty()){
+                            if (valor == Math.floor(valor)) {
+                                valorseleccionado = String.valueOf((int)valor);
+                            }else{
+                                valorseleccionado = String.valueOf(valor);
+                            }
                         }else{
-                            valorseleccionado = String.valueOf(valor);
+                            valorseleccionado = observacion;
                         }
+
 
                         service2.execute(idempleadoencuesta,idencuestadetalle,valorseleccionado,observacionadi, String.valueOf(count++)).get();
 
@@ -208,7 +272,8 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
             }
         });
-        service.execute(idtienda);
+
+        service.execute(idtienda,idempleado,idencuesta);
 
     }
 

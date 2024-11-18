@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -51,8 +52,12 @@ public class EgresosFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     Spinner spinner_tiendas;
-    EditText fecha;
+    TextView fecha;
     RecyclerView recyclerView;
+    private int Dia;
+    private int Mes;
+    private int Año;
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
     public EgresosFragment() {
         // Required empty public constructor
@@ -90,9 +95,9 @@ public class EgresosFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_egresos, container, false);
         final Calendar calendario = Calendar.getInstance();
-        int año = calendario.get(Calendar.YEAR);
-        int mes = calendario.get(Calendar.MONTH);
-        int dia = calendario.get(Calendar.DAY_OF_MONTH);
+        Año = calendario.get(Calendar.YEAR);
+        Mes = calendario.get(Calendar.MONTH);
+        Dia = calendario.get(Calendar.DAY_OF_MONTH);
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         spinner_tiendas = view.findViewById(R.id.tienda);
@@ -100,8 +105,9 @@ public class EgresosFragment extends Fragment {
         fecha = view.findViewById(R.id.fecha);
         Button consultar = view.findViewById(R.id.consultar);
         fecha.setInputType(InputType.TYPE_NULL);
-        String format_fecha = String.format(Locale.getDefault(), "%02d-%02d-%02d", año,(mes+1),dia);
-        fecha.setText(format_fecha);
+
+        String fechaFormateada = sdf.format(calendario.getTime());
+        fecha.setText(fechaFormateada);
         fecha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,12 +116,21 @@ public class EgresosFragment extends Fragment {
                 DatePickerDialog.OnDateSetListener listenerDeDatePicker = new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int año, int mes, int diaDelMes) {
-                        String format_fecha = String.format(Locale.getDefault(), "%02d-%02d-%02d", año,(mes+1),diaDelMes);
-                        fecha.setText(format_fecha);
+                        Calendar cldr = Calendar.getInstance();
+                        cldr.set(Calendar.YEAR, año);
+                        cldr.set(Calendar.MONTH, mes); // No es necesario restar 1 aquí
+                        cldr.set(Calendar.DAY_OF_MONTH, diaDelMes);
+
+                        Año =año;
+                        Mes = mes;
+                        Dia =diaDelMes;
+                        String fechaFormateada = sdf.format(cldr.getTime());
+                        // Establecer la fecha formateada en tu campo de texto fecha
+                        fecha.setText(fechaFormateada);
                     }
                 };
 
-                DatePickerDialog dialogoFecha = new DatePickerDialog(getContext(), listenerDeDatePicker, año,mes, dia);
+                DatePickerDialog dialogoFecha = new DatePickerDialog(getContext(), listenerDeDatePicker, Año,Mes,Dia);
                 dialogoFecha.show();
 
 

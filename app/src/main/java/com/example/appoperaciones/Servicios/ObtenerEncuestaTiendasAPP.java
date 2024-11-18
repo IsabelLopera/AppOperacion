@@ -6,12 +6,16 @@ import android.os.AsyncTask;
 import com.example.appoperaciones.ReportesOperacionActivity;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class ObtenerEncuestaTiendasAPP extends AsyncTask<String, Void, String> {
 
@@ -46,6 +50,8 @@ public class ObtenerEncuestaTiendasAPP extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... parametros) {
         String result = "";
+        String idencuesta  =parametros[0];
+        String documento  =parametros[1];
         String connstr = "https://www.tiendapizzaamericana.co/ProyectoPizzaAmericana/ObtenerEncuestaTiendasAPP";
         HttpURLConnection http = null;
         try {
@@ -53,7 +59,17 @@ public class ObtenerEncuestaTiendasAPP extends AsyncTask<String, Void, String> {
             http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod("POST");
             http.setDoInput(true);
+            http.setDoOutput(true);
 
+            OutputStream ops = http.getOutputStream();
+
+
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops,"UTF-8"));
+            String data = URLEncoder.encode("idencuesta","UTF-8")+"="+URLEncoder.encode(idencuesta,"UTF-8")+"&"+URLEncoder.encode("documento","UTF-8")+"="+URLEncoder.encode(documento,"UTF-8");
+            writer.write(data);
+            writer.flush();
+            writer.close();
+            ops.close();
             InputStream ips = http.getInputStream();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(ips,"ISO-8859-1"));

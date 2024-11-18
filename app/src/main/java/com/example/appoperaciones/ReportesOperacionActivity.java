@@ -1,6 +1,5 @@
 package com.example.appoperaciones;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -10,15 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.webkit.WebView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.appoperaciones.Clases.VerificarRol;
 import com.example.appoperaciones.Fragmentos.BloqueoTiendaFragment;
 import com.example.appoperaciones.Fragmentos.ConsultaBloqueosFragment;
 import com.example.appoperaciones.Fragmentos.EgresosFragment;
@@ -31,6 +25,7 @@ import com.example.appoperaciones.Fragmentos.HorarioAdminFragment;
 import com.example.appoperaciones.Fragmentos.InicioFragment;
 import com.example.appoperaciones.Fragmentos.OperacionVentasFragment;
 import com.example.appoperaciones.Fragmentos.ReporteGeneralFragment;
+import com.example.appoperaciones.Fragmentos.ResultEncuestaFragment;
 import com.example.appoperaciones.Servicios.GenerarReporteOperacion;
 import com.example.appoperaciones.Servicios.GenerarReporteOperacionVenta;
 import com.example.appoperaciones.Servicios.ObtenerEncuestaTiendasAPP;
@@ -39,41 +34,37 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.common.returnsreceiver.qual.This;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.TestOnly;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ReportesOperacionActivity extends AppCompatActivity {
-    ActionBarDrawerToggle drawerToggle;
-    DrawerLayout drawer;
+    private ActionBarDrawerToggle drawerToggle;
+    private DrawerLayout drawer;
     private FirebaseAuth mAuth;
-    GoogleSignInClient googleSignInClient;
-    SharedPreferences sharedPref;
-    SharedPreferences.Editor editor;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    Menu menu;
-    Dialog dialog;
+    private GoogleSignInClient googleSignInClient;
+    private  SharedPreferences sharedPref;
+    private SharedPreferences.Editor editor;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private Menu menu;
+    private Dialog dialog;
+
 
 
     @Override
@@ -181,10 +172,18 @@ public class ReportesOperacionActivity extends AppCompatActivity {
                     }
 
                     case R.id.encuesta_tienda:{
-                        ObtenerEncuestaTiendas();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new EncuestaTiendaFragment()).commit();
 
                         break;
                     }
+                    case R.id.resultado_encuesta:{
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new ResultEncuestaFragment()).commit();
+
+                        break;
+                    }
+
+
+
 
                     case R.id.cerrar_sesion:{
                         logout();
@@ -281,19 +280,38 @@ public class ReportesOperacionActivity extends AppCompatActivity {
 
 
      void  ObtenerRol(){
-         String rol = sharedPref.getString("rol","");
-         db.collection("Roles").document(rol).get()
-                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                     @Override
-                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                         if (documentSnapshot.exists()) {
-                             List<String> permisos = (List<String>) documentSnapshot.get("permisos");
-                             editor.putString("permisos",permisos.toString());
-                             verificarPermisos(permisos.toString());
 
-                         }
-                     }
-                 });
+         try {
+             String rol = sharedPref.getString("rol","");
+             List<String> pm = new ArrayList<>();
+             JSONArray jsonArray = new JSONArray(rol);
+             int totalConsultas = jsonArray.length();
+             AtomicInteger consultasCompletadas = new AtomicInteger(0);
+
+             for (int i = 0; i < jsonArray.length(); i++) {
+                 String rolId = jsonArray.getString(i);
+                 db.collection("Roles").document(rolId).get()
+                         .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                             @Override
+                             public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                 if (documentSnapshot.exists()) {
+                                     pm.addAll((List<String>) documentSnapshot.get("permisos"));
+                                     // Verificar si todas las consultas han terminado
+                                     if (consultasCompletadas.incrementAndGet() == totalConsultas) {
+                                         // Se han completado todas las consultas, ejecutar el código final
+                                         editor.putString("permisos", pm.toString());
+                                         verificarPermisos(pm.toString());
+                                     }
+                                 }
+                             }
+                         });
+             }
+         } catch (JSONException e) {
+             e.printStackTrace();
+         }
+
+
+
     }
 
 
@@ -376,41 +394,7 @@ public class ReportesOperacionActivity extends AppCompatActivity {
 
     }
 
-    public ArrayList<JsonObject> ObtenerEncuestaTiendas(){
-        ArrayList<JsonObject> lista = new ArrayList<>();
-        ObtenerEncuestaTiendasAPP service =new ObtenerEncuestaTiendasAPP(this);
-        Dialog dialog = new Dialog(this, R.style.CustomAlertDialog);
-        dialog.setContentView(R.layout.custom_dialog);
-        service.setAsyncTaskListener(new ReportesOperacionActivity.AsyncTaskListener() {
-            @Override
-            public void showProgressBar() {
-                if(!dialog.isShowing()){
-                    dialog.show();
-                }
-            }
 
-            @Override
-            public void CloseProgressBar() {
-                if(dialog.isShowing()){
-                    dialog.dismiss();
-                }
-            }
-
-            @Override
-            public void datos(String result) {
-                if (!result.contains("Error en servicio")) {
-                    EncuestaTiendaFragment fragment = EncuestaTiendaFragment.newInstance(result, "");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,fragment).commit();
-                }else{
-                    Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        service.execute();
-
-
-        return  lista;
-    }
 
    public interface AsyncTaskListener {
         void showProgressBar();

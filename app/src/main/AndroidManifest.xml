@@ -16,7 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppOperaciones"
         android:usesCleartextTraffic="true">
-        <activity android:name=".EncuestaTiendaActivity"  android:label="Encuesta" ></activity>
+        <activity android:name=".ResultadoEncuestaActivity"></activity>
+        <activity
+            android:name=".EncuestaTiendaActivity"
+            android:label="Encuesta" />
         <activity
             android:name=".GraficaPlatActivity"
             android:label="Grafica | Plataformas" />
@@ -45,6 +48,15 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" />
+
+        <receiver
+            android:name=".Clases.MyPackageReplacedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

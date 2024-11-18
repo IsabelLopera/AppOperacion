@@ -42,6 +42,8 @@ public class InsertarEncabezadoEncuestaTiendasAPP extends AsyncTask<String, Void
     protected String doInBackground(String... strings) {
         String result = "";
         String idtienda   =strings[0];
+        String idempleado  =strings[1];
+        String idencuesta  =strings[2];
         String connstr = "https://tiendapizzaamericana.co/ProyectoPizzaAmericana/InsertarEncabezadoEncuestaTiendasAPP ";
         HttpURLConnection http = null;
 
@@ -56,7 +58,7 @@ public class InsertarEncabezadoEncuestaTiendasAPP extends AsyncTask<String, Void
 
 
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops,"UTF-8"));
-            String data = URLEncoder.encode("idtienda","UTF-8")+"="+URLEncoder.encode(idtienda,"UTF-8");
+            String data = URLEncoder.encode("idtienda","UTF-8")+"="+URLEncoder.encode(idtienda,"UTF-8")+"&"+URLEncoder.encode("idempleado","UTF-8")+"="+URLEncoder.encode(idempleado,"UTF-8")+"&"+URLEncoder.encode("idencuesta","UTF-8")+"="+URLEncoder.encode(idencuesta,"UTF-8");
             writer.write(data);
             writer.flush();
             writer.close();
@@ -84,6 +86,8 @@ public class InsertarEncabezadoEncuestaTiendasAPP extends AsyncTask<String, Void
         }finally {
             if (http != null) http.disconnect();
         }
+        System.out.println("s:"+idtienda);
+        System.out.println(result);
         return result;
     }
 }

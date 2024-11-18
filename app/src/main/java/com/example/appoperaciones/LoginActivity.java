@@ -54,7 +54,9 @@ import org.json.JSONArray;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -141,8 +143,11 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            String rol = documentSnapshot.getString("rol");
-                            editor.putString("rol",rol);
+                            List<ArrayList> rol = (List<ArrayList>) documentSnapshot.get("rol");
+                            //String rol = documentSnapshot.getString("rol");
+                            String doc = documentSnapshot.getString("documento");
+                            editor.putString("rol",rol.toString());
+                            editor.putString("documento",doc);
                             editor.apply();
                           //  FirebaseAuth auth = FirebaseAuth.getInstance();
                             mAuth.signInWithCredential(GoogleAuthProvider.getCredential(account.getIdToken(), null)).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -260,7 +265,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
-        editor.putString("rol","");
+        editor.putString("rol", "");
         editor.apply();
 
     }

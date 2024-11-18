@@ -29,7 +29,10 @@
         android:title="Plataformas"> </item>
 
     <item android:visible="false" android:id="@+id/encuesta_tienda" android:icon="@drawable/ic_baseline_ballot_24"
-        android:title="Encuesta"> </item>
+        android:title="Encuesta">
+
+    </item>
+    <item android:visible="false" android:id="@+id/resultado_encuesta" android:icon="@drawable/ic_baseline_ballot_24" android:title="Resultados de encuesta"/>
 
     <item  android:id="@+id/cerrar_sesion" android:icon="@drawable/ic_baseline_close_24"
         android:title="Cerrar Sesion"></item>

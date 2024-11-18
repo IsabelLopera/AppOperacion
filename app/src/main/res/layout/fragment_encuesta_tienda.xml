@@ -21,7 +21,7 @@
             android:padding="15dp">
 
             <TextView
-                android:id="@+id/descripcion"
+                android:id="@+id/titulo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -63,6 +63,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
                 android:textColor="@color/gris"/>
+
             <TextView
                 android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
@@ -73,6 +74,20 @@
                 android:textColor="@color/black"/>
             <Spinner
                 android:id="@+id/tienda"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tipo"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+            <Spinner
+                android:id="@+id/tipo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />

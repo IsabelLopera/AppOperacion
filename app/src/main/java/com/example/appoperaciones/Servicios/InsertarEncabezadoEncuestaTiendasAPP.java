@@ -86,8 +86,7 @@ public class InsertarEncabezadoEncuestaTiendasAPP extends AsyncTask<String, Void
         }finally {
             if (http != null) http.disconnect();
         }
-        System.out.println("s:"+idtienda);
-        System.out.println(result);
+
         return result;
     }
 }

@@ -256,7 +256,7 @@ public class ReportesOperacionActivity extends AppCompatActivity {
                 }
 
             }
-            System.out.println(jsonArray);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -39,7 +39,7 @@ public class AdapterRecyclerEstadoT extends RecyclerView.Adapter<AdapterRecycler
     public void onBindViewHolder(@NotNull AdapterRecyclerEstadoT.ViewHolder holder, int position) {
         try {
             JSONObject jsonObject = new JSONObject(lista.get(position).toString());
-            System.out.print(lista.get(position));
+
             holder.tienda.setText(jsonObject.getString("tienda"));
             holder.estado.setText(jsonObject.getString("estado"));
             holder.tiempopedido.setText(String.valueOf(jsonObject.getInt("tiempopedido")+" min."));

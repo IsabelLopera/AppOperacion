@@ -205,7 +205,7 @@ public class EstadisticaPlatFragment extends Fragment {
 
             @Override
             public void datos(String resp) {
-                System.out.println(resp);
+
                 try {
                         JSONArray jsonArray =  new JSONArray(resp);
                         ArrayList<JSONObject> nueva_lista= new ArrayList<>();

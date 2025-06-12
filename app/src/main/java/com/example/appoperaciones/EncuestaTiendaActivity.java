@@ -66,7 +66,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
         idtienda = getIntent().getStringExtra("idtienda");
         idempleado = getIntent().getStringExtra("idempleado");
         idencuesta = getIntent().getStringExtra("idencuesta");
-        System.out.println(data_json);
+
         datos = new Gson().fromJson(data_json, type);
         Collections.sort(datos, new Comparator<JsonObject>() {
             @Override
@@ -187,7 +187,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
             }
 
             ListElement = list;
-            System.out.println(ListElement);
+
 
         }catch (JSONException e){
          e.printStackTrace();
@@ -218,27 +218,11 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String idempleadoencuesta = jsonObject.getString("idempleadoencuesta");
-                            // Recorrer la lista de elementos
+                    // Recorrer la lista de elementos
                     int count = 0;
 
                     for (JSONObject item : ListElement) {
-                        InsertarDetalleEncuestaTiendasAPP service2 =new InsertarDetalleEncuestaTiendasAPP(getApplicationContext());
-                        service2.setAsyncTaskListener(new AsyncTaskListener() {
 
-                            @Override
-                            public void datos(String count,String result) {
-                                if(Integer.parseInt(count) == (ListElement.size()-1)){
-                                    if(dialog.isShowing()){
-                                        dialog.dismiss();
-                                    }
-                                    builder.setMessage(result);
-                                    builder.show();
-                                }
-                            }
-                        });
-
-                        String idencuestadetalle = item.getString("idencuestadetalle");
-                        String observacionadi = item.getString("observacionadi");
                         String valorseleccionado = "";
                         double valor = item.getDouble("valordefecto");
                         String  observacion = item.getString("observacion");
@@ -253,11 +237,28 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
                             valorseleccionado = observacion;
                         }
 
-
-                        service2.execute(idempleadoencuesta,idencuestadetalle,valorseleccionado,observacionadi, String.valueOf(count++)).get();
+                        item.put("valor",valorseleccionado);
+                        item.put("idempleadoencuesta",idempleadoencuesta);
 
 
                     }
+
+                    InsertarDetalleEncuestaTiendasAPP service2 =new InsertarDetalleEncuestaTiendasAPP(getApplicationContext());
+                    service2.setAsyncTaskListener(new AsyncTaskListener() {
+
+                        @Override
+                        public void datos(String result) {
+
+                            if(dialog.isShowing()){
+                                dialog.dismiss();
+                            }
+                            builder.setMessage(result);
+                            builder.show();
+
+                        }
+                    });
+
+                    service2.execute(ListElement.toString()).get();
 
 
                 } catch (JSONException e) {
@@ -278,7 +279,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
     }
 
     public interface AsyncTaskListener {
-        void datos(String count,String result);
+        void datos(String result);
     }
 
 /*

@@ -300,7 +300,7 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
 
 
             int opcionIndex = (int) ((valorDefecto - valorInicial) / valorEscala); // Calcular el índice de la opción
-            System.out.println("indice: "+opcionIndex);
+
             if (opcionIndex >= 0 && opcionIndex < holder.radioGroup.getChildCount()) {
                 RadioButton radioButton = (RadioButton) holder.radioGroup.getChildAt(opcionIndex);
                 radioButton.setChecked(true);

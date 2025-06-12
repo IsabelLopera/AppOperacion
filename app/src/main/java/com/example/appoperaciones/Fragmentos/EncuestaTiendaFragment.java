@@ -70,6 +70,7 @@ public class EncuestaTiendaFragment extends Fragment {
     private boolean is_observ = false;
     private String nombre_tienda = "";
     private int   idempleado  = 0;
+
     private  SharedPreferences sharedPref;
 
 
@@ -174,6 +175,7 @@ public class EncuestaTiendaFragment extends Fragment {
 
             @Override
             public void datos(String result) {
+
                 if (!result.contains("Error en servicio")) {
                     MostrarDescripEncuesta(idencuesta,result);
                 }else{
@@ -191,7 +193,7 @@ public class EncuestaTiendaFragment extends Fragment {
            JSONObject datos = new JSONObject(result);
            View content = LayoutInflater.from(getContext()).inflate(R.layout.dialog, null);
            TextView titulo = content.findViewById(R.id.titulo);
-           System.out.println(datos);
+
            TextView encabezado = content.findViewById(R.id.encabezado);
            titulo.setText(datos.getString("descripcion"));
            String encb = datos.getString("Encabezado").replace("\\n",System.getProperty ("line.separator"));
@@ -306,6 +308,7 @@ public class EncuestaTiendaFragment extends Fragment {
 
             @Override
             public void datos(String result) {
+
                 int idtienda = ((Tienda)spinner_tiendas.getSelectedItem()).id;
                 if (!result.contains("Error en servicio")) {
                     Intent intent= new Intent(getContext(), EncuestaTiendaActivity.class);

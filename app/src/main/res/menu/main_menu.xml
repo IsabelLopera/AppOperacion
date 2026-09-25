@@ -34,6 +34,9 @@
     </item>
     <item android:visible="false" android:id="@+id/resultado_encuesta" android:icon="@drawable/ic_baseline_ballot_24" android:title="Resultados de encuesta"/>
 
+    <item android:visible="false" android:id="@+id/monitoreo" android:icon="@drawable/baseline_api_24"
+        android:title="Monitoreo">
+    </item>
     <item  android:id="@+id/cerrar_sesion" android:icon="@drawable/ic_baseline_close_24"
         android:title="Cerrar Sesion"></item>
 

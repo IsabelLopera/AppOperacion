@@ -23,6 +23,7 @@ import com.example.appoperaciones.Fragmentos.EstadoPedidoTFragment;
 import com.example.appoperaciones.Fragmentos.EstadoTiendasFragment;
 import com.example.appoperaciones.Fragmentos.HorarioAdminFragment;
 import com.example.appoperaciones.Fragmentos.InicioFragment;
+import com.example.appoperaciones.Fragmentos.MonitoreoFragment;
 import com.example.appoperaciones.Fragmentos.OperacionVentasFragment;
 import com.example.appoperaciones.Fragmentos.ReporteGeneralFragment;
 import com.example.appoperaciones.Fragmentos.ResultEncuestaFragment;
@@ -182,7 +183,11 @@ public class ReportesOperacionActivity extends AppCompatActivity {
                         break;
                     }
 
+                    case R.id.monitoreo:{
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new MonitoreoFragment()).commit();
 
+                        break;
+                    }
 
 
                     case R.id.cerrar_sesion:{

@@ -50,14 +50,17 @@
                 android:id="@+id/ediText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp" />
+                android:layout_marginTop="10dp"
+                android:maxLength="1000"/>
 
             <EditText
                 android:id="@+id/observacionadi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:hint="Observacion"/>
+                android:hint="Observacion"
+                android:maxLength="500"
+                />
 
             <TextView
                 android:id="@+id/textView"

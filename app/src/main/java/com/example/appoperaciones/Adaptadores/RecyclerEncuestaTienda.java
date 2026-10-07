@@ -47,6 +47,15 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
     private int hour;
     private int minutes;
 
+    public interface OnRespuestaChangeListener {
+        void onRespuestaChanged();
+    }
+    private OnRespuestaChangeListener respuestaChangeListener;
+
+    public void setOnRespuestaChangeListener(OnRespuestaChangeListener listener) {
+        this.respuestaChangeListener = listener;
+    }
+
     public RecyclerEncuestaTienda(ArrayList<JSONObject> lista, Context context) {
         this.context = context;
         this.lista = lista;
@@ -257,6 +266,9 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
                         //radioButton.setChecked(true);
                         //   SeleccionarRadio(holder,1,valorInicial,numOpciones,valorEscala);
                     }
+                    if (respuestaChangeListener != null) {
+                        respuestaChangeListener.onRespuestaChanged();
+                    }
                 }catch (JSONException e){
                     e.printStackTrace();
                 }
@@ -290,6 +302,9 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
 
                     item.put("valordefecto", valorseleccionado);
 
+                    if (respuestaChangeListener != null) {
+                        respuestaChangeListener.onRespuestaChanged();
+                    }
 
                     // Validar si el campo de observación está diligenciado
                 } catch (JSONException e) {

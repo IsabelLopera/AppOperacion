@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -50,6 +51,10 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     public static  RecyclerEncuestaTienda recyclerEncuestaTienda;
     Button enviarEncuestas;
+    LinearLayout layoutTotal;
+    TextView tvTotalPorcentaje, tvRangoCumplimiento;
+    double currentTotalScore = 0.0;
+    String currentRango = "BAJO";
     String idtienda;
     String idempleado;
     String idencuesta;
@@ -96,13 +101,25 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerview);
         enviarEncuestas = findViewById(R.id.enviarEncuesta);
+        layoutTotal = findViewById(R.id.layout_total);
+        tvTotalPorcentaje = findViewById(R.id.tv_total_porcentaje);
+        tvRangoCumplimiento = findViewById(R.id.tv_rango_cumplimiento);
+
         TextView nombre_tienda = findViewById(R.id.nombre_tienda);
         nombre_tienda.setText(nom_tienda);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
        // recyclerView.setHasFixedSize(true);
         recyclerEncuestaTienda = new RecyclerEncuestaTienda(datosJSONObject, this);
+        recyclerEncuestaTienda.setOnRespuestaChangeListener(new RecyclerEncuestaTienda.OnRespuestaChangeListener() {
+            @Override
+            public void onRespuestaChanged() {
+                calcularTotalYRango();
+            }
+        });
         recyclerView.setAdapter(recyclerEncuestaTienda);
+
+        calcularTotalYRango();
 
         enviarEncuestas.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,6 +127,9 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                     builder.setTitle("¿Estas seguro de enviar la encuesta?");
+                    if (layoutTotal != null && layoutTotal.getVisibility() == View.VISIBLE) {
+                        builder.setMessage("Calificación: " + currentTotalScore + "%\nRango: " + currentRango);
+                    }
                     builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -130,6 +150,58 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void calcularTotalYRango() {
+        if (recyclerEncuestaTienda == null || recyclerEncuestaTienda.getLista() == null) return;
+        double totalPorcentaje = 0.0;
+        boolean tienePorcentajes = false;
+
+        for (JSONObject item : recyclerEncuestaTienda.getLista()) {
+            if (item.has("porcentaje") && item.has("tiporespuesta")) {
+                try {
+                    String tipo = item.getString("tiporespuesta");
+                    if (tipo.equals("VNDA")) {
+                        double porcentaje = item.optDouble("porcentaje", 0);
+                        if (porcentaje > 0) {
+                            tienePorcentajes = true;
+                            boolean noaplica = item.optBoolean("noaplica", false);
+                            if (!noaplica) {
+                                double valor = item.optDouble("valordefecto", 0);
+                                if (valor == 1.0) {
+                                    totalPorcentaje += porcentaje;
+                                }
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (tienePorcentajes && layoutTotal != null) {
+            layoutTotal.setVisibility(View.VISIBLE);
+            double totalRedondeado = Math.round(totalPorcentaje * 10.0) / 10.0;
+            currentTotalScore = totalRedondeado;
+
+            if (totalRedondeado <= 60.0) {
+                currentRango = "BAJO";
+                tvRangoCumplimiento.setText("Rango: BAJO");
+                tvRangoCumplimiento.setTextColor(Color.parseColor("#D32F2F"));
+            } else if (totalRedondeado <= 89.0) {
+                currentRango = "MEDIO";
+                tvRangoCumplimiento.setText("Rango: MEDIO");
+                tvRangoCumplimiento.setTextColor(Color.parseColor("#F57C00"));
+            } else {
+                currentRango = "ALTO";
+                tvRangoCumplimiento.setText("Rango: ALTO");
+                tvRangoCumplimiento.setTextColor(Color.parseColor("#388E3C"));
+            }
+            tvTotalPorcentaje.setText("Total: " + totalRedondeado + "%");
+        } else if (layoutTotal != null) {
+            layoutTotal.setVisibility(View.GONE);
+        }
     }
 
 

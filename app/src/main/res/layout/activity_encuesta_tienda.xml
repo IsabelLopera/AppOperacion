@@ -7,35 +7,72 @@
     android:layout_height="match_parent"
     card_view:cardCornerRadius="13dp"
     card_view:cardUseCompatPadding="true"
-    android:layout_margin="15dp"
->
+    android:layout_margin="12dp">
+
+<androidx.core.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
 <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@color/white"
-    android:weightSum="3"
     android:padding="10dp">
+
     <TextView
         android:id="@+id/nombre_tienda"
         android:layout_width="match_parent"
         android:gravity="center"
         android:layout_gravity="center"
         android:layout_height="wrap_content"
-        android:layout_weight="0.1"
         android:textStyle="bold"
         android:textSize="16sp"
-        android:textColor="@color/gris"/>
+        android:textColor="@color/gris"
+        android:layout_marginBottom="8dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginTop="10dp"
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="2.9"/>
+        android:nestedScrollingEnabled="false"/>
+
+    <LinearLayout
+        android:id="@+id/layout_total"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#F0F4F8"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_total_porcentaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total: 0.0%"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginEnd="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_rango_cumplimiento"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rango: BAJO"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#D32F2F"/>
+    </LinearLayout>
+
     <Button
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="24dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -43,4 +80,5 @@
         android:textColor="@color/white"
         android:id="@+id/enviarEncuesta"/>
 </LinearLayout>
-  </androidx.cardview.widget.CardView>
+</androidx.core.widget.NestedScrollView>
+</androidx.cardview.widget.CardView>

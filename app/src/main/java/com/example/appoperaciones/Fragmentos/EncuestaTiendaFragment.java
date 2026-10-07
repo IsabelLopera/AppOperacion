@@ -153,6 +153,11 @@ public class EncuestaTiendaFragment extends Fragment {
     }
 
     public void ObtenerEncuestaTiendas(String idencuesta){
+        if (idencuesta.equals("13")) {
+            String mockEncabezado = "{\"descripcion\":\"INSPECCIÓN DE SEGURIDAD ALIMENTARIA\",\"Encabezado\":\"Formato de Inspección de Seguridad Alimentaria\",\"idempleado\":1}";
+            MostrarDescripEncuesta(idencuesta, mockEncabezado);
+            return;
+        }
         String documento = sharedPref.getString("documento","");
 
         ObtenerEncuestaTiendasAPP service =new ObtenerEncuestaTiendasAPP(getContext());
@@ -288,6 +293,21 @@ public class EncuestaTiendaFragment extends Fragment {
 
 
     public void ObtenerEncuestaDetalleTiendas(String idencuesta){
+        if (idencuesta.equals("13")) {
+            int idtienda = ((Tienda)spinner_tiendas.getSelectedItem()).id;
+            String mockDetalle = getMockInspeccionAlimentaria();
+            Intent intent= new Intent(getContext(), EncuestaTiendaActivity.class);
+            intent.putExtra("datos", mockDetalle);
+            intent.putExtra("encabezado", encabezado);
+            intent.putExtra("is_observ", is_observ);
+            intent.putExtra("idtienda", String.valueOf(idtienda));
+            intent.putExtra("nom_tienda", nombre_tienda);
+            intent.putExtra("idencuesta", idencuesta);
+            intent.putExtra("idempleado", String.valueOf(idempleado));
+            startActivity(intent);
+            return;
+        }
+
         ObtenerEncuestaDetalleTiendasAPP service =new ObtenerEncuestaDetalleTiendasAPP(getContext());
         Dialog dialog = new Dialog(getContext(), R.style.CustomAlertDialog);
         dialog.setContentView(R.layout.custom_dialog);
@@ -327,6 +347,53 @@ public class EncuestaTiendaFragment extends Fragment {
         });
         service.execute(idencuesta);
 
+    }
+
+    private String getMockInspeccionAlimentaria() {
+        return "[" +
+                "{\"orden\":1,\"descripcion\":\"1. Limpieza y desinfección (40%)\",\"tiporespuesta\":\"SPD\",\"valorinicial\":0,\"valorfinal\":0,\"valorescala\":0,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":0.0}," +
+                "{\"orden\":2,\"descripcion\":\"1.1 Las instalaciones en el área del salón, incluidas las mesas y sillas se encuentran limpias.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":3,\"descripcion\":\"1.2 Las instalaciones en el área de lavado se encuentran limpias.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":4,\"descripcion\":\"1.3 Las instalaciones en el área de proceso se encuentran limpias.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":5,\"descripcion\":\"1.4 Las instalaciones en el área de almacenamiento se encuentran limpias.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":6,\"descripcion\":\"1.5 El mostrador, mesa mostrador, pc, equipo de stickers, pantalla domicilios, tv se encuentran limpios.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":7,\"descripcion\":\"1.6 La fachada y elementos del exterior del punto se encuentran limpios.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":8,\"descripcion\":\"1.7 Los servicios sanitarios, lavamanos, orinales se encuentran limpios, sin estancamiento de agua y cuentan con los elementos para la higiene personal (jabón líquido, toallas desechables etc.)\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":9,\"descripcion\":\"1.8 Las áreas de procesos se encuentran alejadas de focos de contaminación.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":10,\"descripcion\":\"1.9 Los equipos se encuentran limpios y sin acumulación de grasas.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":11,\"descripcion\":\"1.10 Los utensilios (pinzas, bandejas, parrillas, etc) se encuentran limpios y sin acumulación de grasas.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":12,\"descripcion\":\"1.11 Los mesones, mesas se mantienen libres de suciedad y residuos alimenticios.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":13,\"descripcion\":\"1.12 La cava, neveras, congeladores se encuentran limpios y ordenados.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":14,\"descripcion\":\"1.13 Cajones de domicilios (limpios, publicidad, y numeración)\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":15,\"descripcion\":\"1.14 Bolsas térmicas limpias y enumeradas\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":16,\"descripcion\":\"1.15 Los elementos para el lavado del horno se encuentran almacenados de manera adecuada.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":17,\"descripcion\":\"1.16 Los elementos para el proceso de limpieza y desinfección (escobas, traperas, recogedor, trapos) se encuentran limpios y almacenados de manera adecuada.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":18,\"descripcion\":\"1.17 Los locker se encuentran limpios, organizados y sin alimentos almacenado.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":19,\"descripcion\":\"1.18 Se tiene claramente definido los productos utilizados, concentraciones, modo de preparación, empleo y rotación de los mismos.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.222}," +
+                "{\"orden\":20,\"descripcion\":\"2. Almacenamiento (30%)\",\"tiporespuesta\":\"SPD\",\"valorinicial\":0,\"valorfinal\":0,\"valorescala\":0,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":0.0}," +
+                "{\"orden\":21,\"descripcion\":\"2.1 Los productos en bodega están ordenados e identificados.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":22,\"descripcion\":\"2.2 El almacenamiento se realiza en condiciones adecuadas de temperatura (0-4°C refrigeración, -10°C-18 °C congelación) y se llevan registros.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":23,\"descripcion\":\"2.3 No se evidencia alimentos o materia prima a ras de piso\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":24,\"descripcion\":\"2.4 Se almacenan los alimentos acordes a las fechas de ingreso, cumpliendo con las PEPS.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":25,\"descripcion\":\"2.5 Los productos abiertos están marcados o rotulados y tapados en los cuartos fríos\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":26,\"descripcion\":\"2.6 Las sustancias químicas se encuentran separadas de los alimentos, ordenadas, rotuladas y tapadas\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":27,\"descripcion\":\"2.7 No hay riesgo de contaminación cruzada de materia prima y de productos en procesos.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":28,\"descripcion\":\"2.8 No se evidencia productos vencidos\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":29,\"descripcion\":\"2.9 La materia prima se encuentra almacenada en el macklan en los compartimientos correspondientes, se encuentran protegidas y en buen estado.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":3.333}," +
+                "{\"orden\":30,\"descripcion\":\"3. Personal Manipulador (20%)\",\"tiporespuesta\":\"SPD\",\"valorinicial\":0,\"valorfinal\":0,\"valorescala\":0,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":0.0}," +
+                "{\"orden\":31,\"descripcion\":\"3.1 Los manipuladores de alimentos (artesanos) llevan uniformes adecuados de color claro y limpio, calzado cerrado de material resistente e impermeable.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.857}," +
+                "{\"orden\":32,\"descripcion\":\"3.2 Los manipuladores de alimentos cuentan con malla para recubrir el cabello y usan adecuadamente el tapabocas\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.857}," +
+                "{\"orden\":33,\"descripcion\":\"3.3 Los manipuladores de alimentos (Administrador, SAC y domiciliarios) llevan uniforme en condiciones de limpieza y orden.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.857}," +
+                "{\"orden\":34,\"descripcion\":\"3.4 El personal presenta las manos limpias, uñas cortas y sin esmalte. No tiene joyas ni maquillaje. El personal masculino se encuentra afeitado.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.857}," +
+                "{\"orden\":35,\"descripcion\":\"3.5 Los empleados que están en contacto directo con los productos, no presentan afecciones en la piel o enfermedades infectocontagiosas.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.857}," +
+                "{\"orden\":36,\"descripcion\":\"3.6 Los manipuladores evitan prácticas antihigiénicas tales como comer, fumar, toser, escupir, masticar chicle o rascarse etc.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.857}," +
+                "{\"orden\":37,\"descripcion\":\"3.7 Se evidencia el correcto diligenciamiento del formato de manipulación de alimentos.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.857}," +
+                "{\"orden\":38,\"descripcion\":\"4. Plan de saneamiento (10%)\",\"tiporespuesta\":\"SPD\",\"valorinicial\":0,\"valorfinal\":0,\"valorescala\":0,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":0.0}," +
+                "{\"orden\":39,\"descripcion\":\"4.1 Existen registros que indiquen que se realiza inspección periódica de limpieza y desinfección en las diferentes áreas, equipos, utensilios.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.500}," +
+                "{\"orden\":40,\"descripcion\":\"4.2 Se realiza el control del cloro y pH y se cuenta con el diligenciamiento adecuado del formato.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.500}," +
+                "{\"orden\":41,\"descripcion\":\"4.3 Las canecas designadas para los residuos sólidos, son utilizadas adecuadamente para este fin y permanecen tapadas con sus bolsas correspondientes y se cuenta con el diligenciamiento adecuado del formato.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.500}," +
+                "{\"orden\":42,\"descripcion\":\"4.4 No se evidencia presencia de plagas y se cuenta con el diligenciamiento adecuado del formato.\",\"tiporespuesta\":\"VNDA\",\"valorinicial\":0,\"valorfinal\":1,\"valorescala\":1,\"valordefecto\":0,\"alertar\":\"N\",\"valor_alertar\":\"N\",\"obligatorio\":\"N\",\"porcentaje\":2.500}" +
+                "]";
     }
 
 

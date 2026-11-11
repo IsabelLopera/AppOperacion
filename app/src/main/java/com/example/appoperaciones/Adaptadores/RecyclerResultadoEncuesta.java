@@ -68,15 +68,22 @@ public class RecyclerResultadoEncuesta  extends  RecyclerView.Adapter<RecyclerRe
             }
 
             if(porcentaje != 0){
-
                 double decimal = porcentaje - Math.floor(porcentaje);
-
-                if (decimal == 0.0) {
-                    holder.porcentaje.setText(Html.fromHtml("<b>Calificación:</b> "+(int)porcentaje+"%"));
+                String rango = "";
+                String color = "#000000";
+                if (porcentaje <= 60.0) {
+                    rango = "BAJO";
+                    color = "#D32F2F";
+                } else if (porcentaje <= 89.0) {
+                    rango = "MEDIO";
+                    color = "#F57C00";
                 } else {
-                    holder.porcentaje.setText(Html.fromHtml("<b>Calificación:</b> "+porcentaje+"%"));
+                    rango = "ALTO";
+                    color = "#388E3C";
                 }
 
+                String textoPorcentaje = (decimal == 0.0) ? String.valueOf((int)porcentaje) : String.valueOf(porcentaje);
+                holder.porcentaje.setText(Html.fromHtml("<b>Calificación:</b> " + textoPorcentaje + "%  -  <font color='" + color + "'><b>" + rango + "</b></font>"));
             }else{
                 holder.porcentaje.setText("");
             }

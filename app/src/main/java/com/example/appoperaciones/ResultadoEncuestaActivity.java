@@ -111,13 +111,21 @@ public class ResultadoEncuestaActivity extends AppCompatActivity {
         }
         if(porcentajetotal != 0){
             double decimal = porcentajetotal - Math.floor(porcentajetotal);
-
-            if (decimal == 0.0) {
-                tvporcentaje.setText(Html.fromHtml("<b>Porcentaje:</b> "+(int)porcentajetotal+"/100 %"));
+            String rango = "";
+            String color = "#000000";
+            if (porcentajetotal <= 60.0) {
+                rango = "BAJO";
+                color = "#D32F2F";
+            } else if (porcentajetotal <= 89.0) {
+                rango = "MEDIO";
+                color = "#F57C00";
             } else {
-                tvporcentaje.setText(Html.fromHtml("<b>Porcentaje:</b> "+porcentajetotal+"/100 %"));
+                rango = "ALTO";
+                color = "#388E3C";
             }
 
+            String textoPorcentaje = (decimal == 0.0) ? String.valueOf((int)porcentajetotal) : String.valueOf(porcentajetotal);
+            tvporcentaje.setText(Html.fromHtml("<b>Porcentaje:</b> " + textoPorcentaje + "%  -  <font color='" + color + "'><b>" + rango + "</b></font>"));
         }
     }
 

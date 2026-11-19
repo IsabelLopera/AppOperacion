@@ -262,12 +262,24 @@ public class EncuestaTiendaFragment extends Fragment {
 
                             // Obtiene el valor del campo "id_encuesta" de cada documento
                             String idEncuesta = document.getString("id_encuesta");
-                            is_observ = document.getBoolean("observacion");
+                            Boolean obs = document.getBoolean("observacion");
+                            if (obs != null) {
+                                is_observ = obs;
+                            }
 
                             // Realiza las operaciones necesarias con el ID y el valor obtenidos
                             if (idEncuesta != null) {
-                                // Hacer algo con el ID y el valor de id_encuesta
-                                tipoList.add( new Encuesta(idEncuesta,documentId) );
+                                // Omitir la encuesta de visita (id 14 o nombre visita)
+                                if (documentId.equalsIgnoreCase("visita") || "14".equals(idEncuesta)) {
+                                    continue;
+                                }
+
+                                String nombreMostrar = documentId;
+                                if (documentId.equalsIgnoreCase("operacional") || "13".equals(idEncuesta)) {
+                                    nombreMostrar = "Inspección de Seguridad Alimentaria";
+                                }
+
+                                tipoList.add( new Encuesta(idEncuesta, nombreMostrar) );
 
                             } else {
                                 // Maneja el caso en que el campo "id_encuesta" sea nulo
@@ -278,6 +290,9 @@ public class EncuestaTiendaFragment extends Fragment {
                         ArrayAdapter<Encuesta> dataAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, tipoList);
                         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         spinner_tipo.setAdapter(dataAdapter);
+                        if (tipoList.size() == 2) {
+                            spinner_tipo.setSelection(1);
+                        }
                     } else {
                         // Maneja el error al obtener los documentos
                         Log.d("TAG", "Error al obtener documentos: ", task.getException());

@@ -57,7 +57,7 @@ public class RecyclerResultadoDetalle  extends RecyclerView.Adapter<RecyclerResu
         String respuesta = lista.get(position).get("respuesta").getAsString();
         double valor_inicial = lista.get(position).get("valor_inicial").getAsDouble();
 
-        holder.descripcion.setText(item);
+        holder.descripcion.setText(RecyclerResultadoEncuesta.corregirEncoding(item));
         holder.descripcion.setTextColor(ContextCompat.getColor(context, R.color.gris));
         holder.descripcion.setTypeface(Typeface.DEFAULT);
 
@@ -85,7 +85,7 @@ public class RecyclerResultadoDetalle  extends RecyclerView.Adapter<RecyclerResu
 
         if (!observacion.isEmpty()) {
             holder.observacion.setVisibility(View.VISIBLE);
-            holder.observacion.setText(Html.fromHtml("<b>Observacion:</b> "+observacion));
+            holder.observacion.setText(Html.fromHtml("<b>Observacion:</b> "+RecyclerResultadoEncuesta.corregirEncoding(observacion)));
 
         }else{
             holder.observacion.setVisibility(View.GONE);

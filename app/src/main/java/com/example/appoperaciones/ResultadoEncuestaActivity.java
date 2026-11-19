@@ -8,11 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.appoperaciones.Adaptadores.RecyclerEncuestaTienda;
 import com.example.appoperaciones.Adaptadores.RecyclerResultadoDetalle;
+import com.example.appoperaciones.Adaptadores.RecyclerResultadoEncuesta;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -47,6 +49,10 @@ public class ResultadoEncuestaActivity extends AppCompatActivity {
     private TextView tvempleado;
     private TextView tvdescripcion;
     private TextView tvtienda;
+    private TextView tvrecibe;
+    private TextView tvfirmaRecibe;
+    private TextView tvfirmaInspector;
+    private TextView tvmedidas;
 
 
     @Override
@@ -58,9 +64,14 @@ public class ResultadoEncuestaActivity extends AppCompatActivity {
         String data_json = getIntent().getStringExtra("datos");
         tienda = getIntent().getStringExtra("tienda");
         fecha = getIntent().getStringExtra("fecha");
-        empleado = getIntent().getStringExtra("empleado");
-        descripcion = getIntent().getStringExtra("descripcion");
+        empleado = RecyclerResultadoEncuesta.corregirEncoding(getIntent().getStringExtra("empleado"));
+        descripcion = RecyclerResultadoEncuesta.corregirEncoding(getIntent().getStringExtra("descripcion"));
         porcentajetotal = getIntent().getDoubleExtra("porcentajetotal",0);
+        String nombreRecibe = RecyclerResultadoEncuesta.corregirEncoding(getIntent().getStringExtra("nombre_recibe"));
+        String cargoRecibe = RecyclerResultadoEncuesta.corregirEncoding(getIntent().getStringExtra("cargo_recibe"));
+        String medidasCorrectivas = RecyclerResultadoEncuesta.corregirEncoding(getIntent().getStringExtra("medidas_correctivas"));
+        boolean tieneFirmaRecibe = getIntent().getBooleanExtra("tiene_firma_recibe", false);
+        boolean tieneFirmaInspector = getIntent().getBooleanExtra("tiene_firma_inspector", false);
         valorinicial = 0;
         valorfinal = 0;
 
@@ -85,11 +96,40 @@ public class ResultadoEncuestaActivity extends AppCompatActivity {
         tvempleado = findViewById(R.id.empleado);
         tvfecha = findViewById(R.id.fecha);
         tvtienda = findViewById(R.id.tienda);
+        tvrecibe = findViewById(R.id.recibe);
+        tvfirmaRecibe = findViewById(R.id.tv_firma_recibe);
+        tvfirmaInspector = findViewById(R.id.tv_firma_inspector);
+        tvmedidas = findViewById(R.id.medidas_correctivas);
 
         tvdescripcion.setText(descripcion);
-        tvempleado.setText(empleado);
-        tvfecha.setText(fecha);
-        tvtienda.setText(tienda);
+        tvempleado.setText(Html.fromHtml("<b>Auditor:</b> " + empleado));
+        tvfecha.setText(Html.fromHtml("<b>Fecha:</b> " + fecha));
+        tvtienda.setText(Html.fromHtml("<b>Tienda:</b> " + tienda));
+
+        if (nombreRecibe != null && !nombreRecibe.trim().isEmpty()) {
+            String textoRecibe = "<b>Recibió visita:</b> " + nombreRecibe;
+            if (cargoRecibe != null && !cargoRecibe.trim().isEmpty()) {
+                textoRecibe += " (" + cargoRecibe + ")";
+            }
+            tvrecibe.setText(Html.fromHtml(textoRecibe));
+            tvrecibe.setVisibility(View.VISIBLE);
+        } else {
+            tvrecibe.setText(Html.fromHtml("<b>Recibió visita:</b> <font color='#888888'>No registrado</font>"));
+            tvrecibe.setVisibility(View.VISIBLE);
+        }
+
+        String statusFirmaRecibe = tieneFirmaRecibe ? "<font color='#2E7D32'><b>✓ Firmado</b></font>" : "<font color='#D32F2F'><b>✕ Sin firma</b></font>";
+        String statusFirmaInspector = tieneFirmaInspector ? "<font color='#2E7D32'><b>✓ Firmado</b></font>" : "<font color='#D32F2F'><b>✕ Sin firma</b></font>";
+
+        tvfirmaRecibe.setText(Html.fromHtml("<b>Firma Tienda:</b> " + statusFirmaRecibe));
+        tvfirmaInspector.setText(Html.fromHtml("<b>Firma Auditor:</b> " + statusFirmaInspector));
+
+        if (medidasCorrectivas != null && !medidasCorrectivas.trim().isEmpty()) {
+            tvmedidas.setText(Html.fromHtml("<b>Medidas correctivas:</b> " + medidasCorrectivas));
+            tvmedidas.setVisibility(View.VISIBLE);
+        } else {
+            tvmedidas.setVisibility(View.GONE);
+        }
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));

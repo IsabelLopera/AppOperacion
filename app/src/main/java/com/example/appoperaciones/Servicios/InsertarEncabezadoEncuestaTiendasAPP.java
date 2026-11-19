@@ -44,7 +44,12 @@ public class InsertarEncabezadoEncuestaTiendasAPP extends AsyncTask<String, Void
         String idtienda   =strings[0];
         String idempleado  =strings[1];
         String idencuesta  =strings[2];
-        String connstr = "https://tiendapizzaamericana.co/ProyectoPizzaAmericana/InsertarEncabezadoEncuestaTiendasAPP ";
+        String nombreRecibe = strings.length > 3 ? strings[3] : "";
+        String cargoRecibe = strings.length > 4 ? strings[4] : "";
+        String medidasCorrectivas = strings.length > 5 ? strings[5] : "";
+        String firma = strings.length > 6 ? strings[6] : "";
+        String firmaInspector = strings.length > 7 ? strings[7] : "";
+        String connstr = "https://tiendapizzaamericana.co/ProyectoPizzaAmericana/InsertarEncabezadoEncuestaTiendasAPP";
         HttpURLConnection http = null;
 
         try {
@@ -58,8 +63,28 @@ public class InsertarEncabezadoEncuestaTiendasAPP extends AsyncTask<String, Void
 
 
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops,"UTF-8"));
-            String data = URLEncoder.encode("idtienda","UTF-8")+"="+URLEncoder.encode(idtienda,"UTF-8")+"&"+URLEncoder.encode("idempleado","UTF-8")+"="+URLEncoder.encode(idempleado,"UTF-8")+"&"+URLEncoder.encode("idencuesta","UTF-8")+"="+URLEncoder.encode(idencuesta,"UTF-8");
-            writer.write(data);
+            StringBuilder dataBuilder = new StringBuilder();
+            dataBuilder.append(URLEncoder.encode("idtienda","UTF-8")).append("=").append(URLEncoder.encode(idtienda,"UTF-8"))
+                       .append("&").append(URLEncoder.encode("idempleado","UTF-8")).append("=").append(URLEncoder.encode(idempleado,"UTF-8"))
+                       .append("&").append(URLEncoder.encode("idencuesta","UTF-8")).append("=").append(URLEncoder.encode(idencuesta,"UTF-8"));
+
+            if (!nombreRecibe.isEmpty()) {
+                dataBuilder.append("&").append(URLEncoder.encode("nombre_recibe","UTF-8")).append("=").append(URLEncoder.encode(nombreRecibe,"UTF-8"));
+            }
+            if (!cargoRecibe.isEmpty()) {
+                dataBuilder.append("&").append(URLEncoder.encode("cargo_recibe","UTF-8")).append("=").append(URLEncoder.encode(cargoRecibe,"UTF-8"));
+            }
+            if (!medidasCorrectivas.isEmpty()) {
+                dataBuilder.append("&").append(URLEncoder.encode("medidas_correctivas","UTF-8")).append("=").append(URLEncoder.encode(medidasCorrectivas,"UTF-8"));
+            }
+            if (!firma.isEmpty()) {
+                dataBuilder.append("&").append(URLEncoder.encode("firma","UTF-8")).append("=").append(URLEncoder.encode(firma,"UTF-8"));
+            }
+            if (!firmaInspector.isEmpty()) {
+                dataBuilder.append("&").append(URLEncoder.encode("firma_inspector","UTF-8")).append("=").append(URLEncoder.encode(firmaInspector,"UTF-8"));
+            }
+
+            writer.write(dataBuilder.toString());
             writer.flush();
             writer.close();
             ops.close();

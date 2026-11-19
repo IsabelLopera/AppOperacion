@@ -52,14 +52,24 @@ public class RecyclerResultadoEncuesta  extends  RecyclerView.Adapter<RecyclerRe
         return new ViewHolder(view);
     }
 
+    public static String corregirEncoding(String texto) {
+        if (texto == null || texto.isEmpty()) return "";
+        try {
+            if (texto.contains("Ã")) {
+                return new String(texto.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1), java.nio.charset.StandardCharsets.UTF_8);
+            }
+        } catch (Exception ignored) {}
+        return texto;
+    }
+
     @Override
     public void onBindViewHolder(RecyclerResultadoEncuesta.ViewHolder holder, int position) {
         try {
             JSONObject jsonObject = new JSONObject(lista.get(position).toString());
 
-            holder.nombre.setText(jsonObject.getString("nombre_empleado"));
+            holder.nombre.setText(corregirEncoding(jsonObject.getString("nombre_empleado")));
             holder.fechahora.setText(jsonObject.getString("fecha_hora"));
-            holder.tipoencuesta.setText(jsonObject.getString("descripcion_encuesta"));
+            holder.tipoencuesta.setText(corregirEncoding(jsonObject.getString("descripcion_encuesta")));
             double porcentaje;
             if(jsonObject.has("porcentaje_total")){
                 porcentaje = jsonObject.getDouble("porcentaje_total");
@@ -88,16 +98,45 @@ public class RecyclerResultadoEncuesta  extends  RecyclerView.Adapter<RecyclerRe
                 holder.porcentaje.setText("");
             }
 
+            String nombreRecibe = corregirEncoding(jsonObject.optString("nombre_recibe", ""));
+            String cargoRecibe = corregirEncoding(jsonObject.optString("cargo_recibe", ""));
+            String medidasCorrectivas = corregirEncoding(jsonObject.optString("medidas_correctivas", ""));
+            boolean tieneFirmaRecibe = jsonObject.optBoolean("tiene_firma_recibe", false);
+            boolean tieneFirmaInspector = jsonObject.optBoolean("tiene_firma_inspector", false);
+
+            if (!nombreRecibe.isEmpty()) {
+                String textoRecibe = "<b>Recibió:</b> " + nombreRecibe;
+                if (!cargoRecibe.isEmpty()) {
+                    textoRecibe += " (" + cargoRecibe + ")";
+                }
+                holder.recibeItem.setText(Html.fromHtml(textoRecibe));
+                holder.recibeItem.setVisibility(View.VISIBLE);
+            } else {
+                holder.recibeItem.setVisibility(View.GONE);
+            }
+
+            if (tieneFirmaRecibe && tieneFirmaInspector) {
+                holder.firmasItem.setText(Html.fromHtml("<font color='#2E7D32'><b>✓ Firmas registradas (2/2)</b></font>"));
+                holder.firmasItem.setVisibility(View.VISIBLE);
+            } else if (tieneFirmaRecibe || tieneFirmaInspector) {
+                holder.firmasItem.setText(Html.fromHtml("<font color='#F57C00'><b>⚠ 1 firma registrada</b></font>"));
+                holder.firmasItem.setVisibility(View.VISIBLE);
+            } else {
+                holder.firmasItem.setText(Html.fromHtml("<font color='#888888'>Sin firmas registradas</font>"));
+                holder.firmasItem.setVisibility(View.VISIBLE);
+            }
+
             holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     try {
                         int  idempeladoencuesta = jsonObject.getInt("idempleadoencuesta");
                         String fecha =jsonObject.getString("fecha_hora");
-                        String empleado  = jsonObject.getString("nombre_empleado");
-                        String descripcion  = jsonObject.getString("descripcion_encuesta");
+                        String empleado  = corregirEncoding(jsonObject.getString("nombre_empleado"));
+                        String descripcion  = corregirEncoding(jsonObject.getString("descripcion_encuesta"));
 
-                        createSimpleDialog(idempeladoencuesta,empleado,fecha,descripcion,porcentaje);
+                        createSimpleDialog(idempeladoencuesta, empleado, fecha, descripcion, porcentaje,
+                                nombreRecibe, cargoRecibe, medidasCorrectivas, tieneFirmaRecibe, tieneFirmaInspector);
                     } catch (JSONException e) {
                         System.out.println(e);
                     }
@@ -114,7 +153,8 @@ public class RecyclerResultadoEncuesta  extends  RecyclerView.Adapter<RecyclerRe
 
     }
 
-    public void createSimpleDialog(int idempeladoencuesta, String empleado, String fecha, String descripcion, double porcentaje) {
+    public void createSimpleDialog(int idempeladoencuesta, String empleado, String fecha, String descripcion, double porcentaje,
+                               String nombreRecibe, String cargoRecibe, String medidasCorrectivas, boolean tieneFirmaRecibe, boolean tieneFirmaInspector) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         builder.setTitle("Confirmacion")
@@ -157,6 +197,11 @@ public class RecyclerResultadoEncuesta  extends  RecyclerView.Adapter<RecyclerRe
                                             intent.putExtra("empleado",empleado);
                                             intent.putExtra("fecha", fecha);
                                             intent.putExtra("porcentajetotal",porcentaje);
+                                            intent.putExtra("nombre_recibe", nombreRecibe);
+                                            intent.putExtra("cargo_recibe", cargoRecibe);
+                                            intent.putExtra("medidas_correctivas", medidasCorrectivas);
+                                            intent.putExtra("tiene_firma_recibe", tieneFirmaRecibe);
+                                            intent.putExtra("tiene_firma_inspector", tieneFirmaInspector);
                                             context.startActivity(intent);
 
 
@@ -185,7 +230,7 @@ public class RecyclerResultadoEncuesta  extends  RecyclerView.Adapter<RecyclerRe
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView nombre,fechahora,tipoencuesta,porcentaje;
+        TextView nombre,fechahora,tipoencuesta,porcentaje,recibeItem,firmasItem;
         CardView cardView;
         public ViewHolder(View itemView) {
             super(itemView);
@@ -195,6 +240,8 @@ public class RecyclerResultadoEncuesta  extends  RecyclerView.Adapter<RecyclerRe
             tipoencuesta = itemView.findViewById(R.id.tipoencuesta);
             cardView =  itemView.findViewById(R.id.card_view);
             porcentaje =  itemView.findViewById(R.id.porcentaje);
+            recibeItem = itemView.findViewById(R.id.recibe_item);
+            firmasItem = itemView.findViewById(R.id.firmas_item);
         }
     }
 }

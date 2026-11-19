@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.appoperaciones">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -19,7 +18,9 @@
         <activity android:name=".ResultadoEncuestaActivity"></activity>
         <activity
             android:name=".EncuestaTiendaActivity"
-            android:label="Encuesta" />
+            android:label="Encuesta"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".GraficaPlatActivity"
             android:label="Grafica | Plataformas" />

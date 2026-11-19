@@ -3,6 +3,7 @@ package com.example.appoperaciones.Adaptadores;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -27,6 +28,7 @@ import android.widget.TimePicker;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.CompoundButtonCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appoperaciones.EncuestaTiendaActivity;
@@ -81,17 +83,18 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
 
             holder.descripcion.setText(item.getString("descripcion"));
             holder.customTextWatcher.updatePosition(holder.ediText, position);
+            holder.customObservacionWatcher.updatePosition(holder.observacionadi, position);
             holder.descripcion.setTextColor(ContextCompat.getColor(context, R.color.gris));
             holder.descripcion.setTypeface(Typeface.DEFAULT);
             holder.ediText.setVisibility(View.GONE);
             holder.textView.setVisibility(View.GONE);
             holder.layout_radioGroup.setVisibility(View.GONE);
-            holder.observacionadi.setText(item.getString("observacionadi"));
-                if(item.getBoolean("isobs")){
-                    holder.observacionadi.setVisibility(View.VISIBLE);
-                }else{
-                    holder.observacionadi.setVisibility(View.GONE);
-                }
+            holder.observacionadi.setText(item.optString("observacionadi", ""));
+            if(item.optBoolean("isobs", false)){
+                holder.observacionadi.setVisibility(View.VISIBLE);
+            }else{
+                holder.observacionadi.setVisibility(View.GONE);
+            }
             // Verificar si el elemento tiene tipo de respuesta
             if (item.has("tiporespuesta")) {
                 String tipoRespuesta = item.getString("tiporespuesta");
@@ -135,6 +138,7 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
         RadioGroup radioGroup;
         EditText observacionadi,ediText;
         CustomTextWatcher customTextWatcher = new CustomTextWatcher();
+        CustomObservacionWatcher customObservacionWatcher = new CustomObservacionWatcher();
         CardView cardView ;
         LinearLayout layout_radioGroup;
         CheckBox checkbox;
@@ -147,36 +151,46 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
             ediText=itemView.findViewById(R.id.ediText);
             textView=itemView.findViewById(R.id.textView);
             ediText.addTextChangedListener(customTextWatcher);
+            observacionadi.addTextChangedListener(customObservacionWatcher);
             cardView = itemView.findViewById(R.id.card_view);
             layout_radioGroup =itemView.findViewById(R.id.layout_radioGroup);
             checkbox = itemView.findViewById(R.id.checkbox);
-            observacionadi.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+    }
 
+    public class CustomObservacionWatcher implements TextWatcher {
+        private int position;
+        private EditText editText;
+
+        public void updatePosition(EditText editText, int position) {
+            this.editText = editText;
+            this.position = position;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int i, int i1, int i2) {
+            if (position >= 0 && position < lista.size()) {
+                try {
+                    lista.get(position).put("observacionadi", s.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+            }
+        }
 
-                @Override
-                public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                    try {
-                        lista.get(getAdapterPosition()).put("observacionadi", s.toString());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String texto = editable.toString();
+            if (editText != null && !TextUtils.isEmpty(texto)) {
+                Drawable drawable = editText.getBackground();
+                if (drawable != null) {
+                    drawable.setColorFilter(Color.parseColor("#146CF2"), PorterDuff.Mode.SRC_ATOP);
+                    editText.setBackground(drawable);
                 }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    String texto = editable.toString();
-                    if (!TextUtils.isEmpty(texto)) {
-                        Drawable drawable = observacionadi.getBackground(); // get current EditText drawable
-                        drawable.setColorFilter(Color.parseColor("#146CF2"), PorterDuff.Mode.SRC_ATOP);
-                        observacionadi.setBackground(drawable);
-                    }
-                }
-            });
+            }
         }
     }
 
@@ -222,18 +236,40 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
 
     // Método para manejar la respuesta de tipo "VNDA"
     private void handleVNDA(ViewHolder holder, JSONObject item) throws JSONException {
-
-        try{
+        try {
             holder.layout_radioGroup.setVisibility(View.VISIBLE);
             double valorEscala = item.getDouble("valorescala");
             double valorDefecto = item.getDouble("valordefecto");
             double valorInicial = item.getDouble("valorinicial");
             double valorFinal = item.getDouble("valorfinal");
 
-            int numOpciones = (int) ((valorFinal - valorInicial / valorEscala)) + 1;
+            int numOpciones = (int) Math.round((valorFinal - valorInicial) / valorEscala) + 1;
+
+            // 1. Desvincular listeners antes de manipular vistas para evitar disparos accidentales en reciclado
+            holder.radioGroup.setOnCheckedChangeListener(null);
+            holder.checkbox.setOnCheckedChangeListener(null);
+
+            // 2. Limpiar vistas previas
             holder.radioGroup.removeAllViews();
+
+            int[][] states = new int[][] {
+                new int[] { android.R.attr.state_checked },
+                new int[] { -android.R.attr.state_checked }
+            };
+            int[] redColors = new int[] {
+                Color.parseColor("#D32F2F"), // Rojo cuando está seleccionado
+                Color.parseColor("#8E8E8E")  // Gris cuando está desmarcado
+            };
+            int[] normalColors = new int[] {
+                Color.parseColor("#146CF2"), // Azul cuando está seleccionado
+                Color.parseColor("#8E8E8E")  // Gris cuando está desmarcado
+            };
+            ColorStateList redTint = new ColorStateList(states, redColors);
+            ColorStateList normalTint = new ColorStateList(states, normalColors);
+
             for (int i = 0; i < numOpciones; i++) {
                 RadioButton radioButton = new RadioButton(context);
+                radioButton.setId(View.generateViewId());
                 double opcionValor = valorInicial + (i * valorEscala);
 
                 if (opcionValor == Math.floor(opcionValor)) {
@@ -241,92 +277,159 @@ public class RecyclerEncuestaTienda  extends RecyclerView.Adapter<RecyclerEncues
                 } else {
                     radioButton.setText(String.valueOf(opcionValor));
                 }
+
+                if (opcionValor == 0.0) {
+                    CompoundButtonCompat.setButtonTintList(radioButton, redTint);
+                } else {
+                    CompoundButtonCompat.setButtonTintList(radioButton, normalTint);
+                }
+
                 holder.radioGroup.addView(radioButton);
             }
 
-
-            holder.checkbox.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-                try{
-
-                    if (isChecked) {
-
-                        item.put("noaplica", true);
-                        item.put("isobs",false);
-                       // item.put("valordefecto", -1);
-                        holder.observacionadi.setVisibility(View.GONE);
-                        holder.radioGroup.setVisibility(View.GONE);
-
-
-                    }else{
-                        item.put("noaplica", false);
-                        item.put("isobs",true);
-                        holder.observacionadi.setVisibility(View.VISIBLE);
-                        holder.radioGroup.setVisibility(View.VISIBLE);
-                        //RadioButton radioButton = (RadioButton) holder.radioGroup.getChildAt(0);
-                        //radioButton.setChecked(true);
-                        //   SeleccionarRadio(holder,1,valorInicial,numOpciones,valorEscala);
-                    }
-                    if (respuestaChangeListener != null) {
-                        respuestaChangeListener.onRespuestaChanged();
-                    }
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
-
-
-            });
-            holder.checkbox.setChecked(item.getBoolean("noaplica"));
-
-            holder.radioGroup.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-                try {
-                    int respuestaIndex = holder.radioGroup.indexOfChild(holder.radioGroup.findViewById(checkedId)) + 1;
-                    //RadioButton radioButton = holder.radioGroup.findViewById(checkedId);
-                    //int respuestaIndex = Integer.parseInt(radioButton.getText().toString());
-
-                    double valorseleccionado = valorInicial + (respuestaIndex - 1) * valorEscala;
-                    // Actualizar el valor de respuesta seleccionada en el objeto Pregunta
-                    double numeroEnMedio = valorInicial + (numOpciones / 2) * valorEscala;
-
-                    if(!item.getBoolean("noaplica")){
-                        if (valorseleccionado <= numeroEnMedio) {
-                            holder.observacionadi.setVisibility(View.VISIBLE);
-                            item.put("isobs",true);
-
-                        }else{
-                            holder.observacionadi.setVisibility(View.GONE);
-                            item.put("isobs",false);
-
-                        }
-                    }
-
-
-                    item.put("valordefecto", valorseleccionado);
-
-                    if (respuestaChangeListener != null) {
-                        respuestaChangeListener.onRespuestaChanged();
-                    }
-
-                    // Validar si el campo de observación está diligenciado
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            });
-
-
-            int opcionIndex = (int) ((valorDefecto - valorInicial) / valorEscala); // Calcular el índice de la opción
-
+            // 3. Marcar la opción seleccionada ANTES de enlazar el listener
+            int opcionIndex = (int) Math.round((valorDefecto - valorInicial) / valorEscala);
             if (opcionIndex >= 0 && opcionIndex < holder.radioGroup.getChildCount()) {
                 RadioButton radioButton = (RadioButton) holder.radioGroup.getChildAt(opcionIndex);
                 radioButton.setChecked(true);
+            } else {
+                holder.radioGroup.clearCheck();
             }
 
-        }catch (JSONException e){
+            // 4. Configurar estado del CheckBox de No Aplica y visibilidad de observación
+            boolean noAplica = item.optBoolean("noaplica", false);
+            holder.checkbox.setChecked(noAplica);
+            if (noAplica) {
+                holder.radioGroup.setVisibility(View.GONE);
+                holder.observacionadi.setVisibility(View.GONE);
+                holder.observacionadi.setError(null);
+            } else {
+                holder.radioGroup.setVisibility(View.VISIBLE);
+                boolean reqObs = (numOpciones <= 2) ? (valorDefecto < valorFinal) : (valorDefecto < (valorInicial + valorFinal) / 2.0);
+                holder.observacionadi.setVisibility(reqObs ? View.VISIBLE : View.GONE);
+            }
+
+            actualizarEstilosRadioButtons(holder.radioGroup, valorInicial, valorEscala);
+
+            // 5. Vincular listener de CheckBox
+            holder.checkbox.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+                try {
+                    item.put("noaplica", isChecked);
+                    if (isChecked) {
+                        item.put("isobs", false);
+                        holder.observacionadi.setVisibility(View.GONE);
+                        holder.observacionadi.setError(null);
+                        holder.radioGroup.setVisibility(View.GONE);
+                        if (holder.observacionadi.isFocused()) {
+                            holder.observacionadi.clearFocus();
+                        }
+                    } else {
+                        holder.radioGroup.setVisibility(View.VISIBLE);
+                        int checkedId = holder.radioGroup.getCheckedRadioButtonId();
+                        if (checkedId != -1) {
+                            View checkedChild = holder.radioGroup.findViewById(checkedId);
+                            if (checkedChild != null) {
+                                int rIndex = holder.radioGroup.indexOfChild(checkedChild) + 1;
+                                double vSel = valorInicial + (rIndex - 1) * valorEscala;
+                                boolean req = (numOpciones <= 2) ? (vSel < valorFinal) : (vSel < (valorInicial + valorFinal) / 2.0);
+                                holder.observacionadi.setVisibility(req ? View.VISIBLE : View.GONE);
+                                item.put("isobs", req);
+                            }
+                        }
+                    }
+                    if (respuestaChangeListener != null) {
+                        respuestaChangeListener.onRespuestaChanged();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            // 6. Vincular listener de RadioGroup
+            holder.radioGroup.setOnCheckedChangeListener((radioGroup, checkedId) -> {
+                if (checkedId == -1) {
+                    return;
+                }
+                View checkedChild = radioGroup.findViewById(checkedId);
+                if (checkedChild == null) {
+                    return;
+                }
+                int respuestaIndex = radioGroup.indexOfChild(checkedChild) + 1;
+                if (respuestaIndex <= 0) {
+                    return;
+                }
+                double valorseleccionado = valorInicial + (respuestaIndex - 1) * valorEscala;
+
+                try {
+                    item.put("valordefecto", valorseleccionado);
+
+                    if (!item.optBoolean("noaplica", false)) {
+                        boolean requiereObs;
+                        if (numOpciones <= 2) {
+                            requiereObs = (valorseleccionado < valorFinal);
+                        } else {
+                            requiereObs = (valorseleccionado < (valorInicial + valorFinal) / 2.0);
+                        }
+
+                        if (requiereObs) {
+                            holder.observacionadi.setVisibility(View.VISIBLE);
+                            item.put("isobs", true);
+
+                            // Limpiar foco del ítem anterior para evitar que el NestedScrollView se devuelva
+                            if (context instanceof Activity) {
+                                View currentFocus = ((Activity) context).getCurrentFocus();
+                                if (currentFocus != null && currentFocus != holder.observacionadi) {
+                                    currentFocus.clearFocus();
+                                }
+                            }
+                            holder.observacionadi.post(() -> {
+                                holder.observacionadi.requestFocus();
+                            });
+                        } else {
+                            holder.observacionadi.setVisibility(View.GONE);
+                            item.put("isobs", false);
+                            holder.observacionadi.setError(null);
+                            if (holder.observacionadi.isFocused()) {
+                                holder.observacionadi.clearFocus();
+                            }
+                        }
+                    }
+
+                    actualizarEstilosRadioButtons(radioGroup, valorInicial, valorEscala);
+
+                    if (respuestaChangeListener != null) {
+                        respuestaChangeListener.onRespuestaChanged();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            });
+
+        } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
 
-
-
+    private void actualizarEstilosRadioButtons(RadioGroup radioGroup, double valorInicial, double valorEscala) {
+        for (int k = 0; k < radioGroup.getChildCount(); k++) {
+            View child = radioGroup.getChildAt(k);
+            if (child instanceof RadioButton) {
+                RadioButton rb = (RadioButton) child;
+                double v = valorInicial + (k * valorEscala);
+                if (rb.isChecked()) {
+                    if (v == 0.0) {
+                        rb.setTextColor(Color.parseColor("#D32F2F"));
+                        rb.setTypeface(Typeface.DEFAULT_BOLD);
+                    } else {
+                        rb.setTextColor(Color.parseColor("#146CF2"));
+                        rb.setTypeface(Typeface.DEFAULT_BOLD);
+                    }
+                } else {
+                    rb.setTextColor(Color.parseColor("#616161"));
+                    rb.setTypeface(Typeface.DEFAULT);
+                }
+            }
+        }
     }
 
     // Método para manejar la respuesta de tipo "EDITXT"

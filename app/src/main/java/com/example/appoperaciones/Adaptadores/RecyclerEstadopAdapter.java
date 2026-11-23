@@ -77,7 +77,7 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
 
             if(holder.getItemViewType() == VIEW_TYPE_ONE) {
                 if (esTercerizado) {
-                    holder.estado.setText(estado + " [" + etiquetaEmpresa + "]");
+                    holder.estado.setText(estado + " • " + etiquetaEmpresa);
                 } else {
                     holder.estado.setText(estado);
                 }
@@ -95,16 +95,9 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
             }else{
 
                 if (esTercerizado) {
-                    holder.estado.setText(estado + " [" + etiquetaEmpresa + "]");
-                    if (holder.tercerizado != null) {
-                        holder.tercerizado.setVisibility(View.VISIBLE);
-                        holder.tercerizado.setText("TERCERIZADO - " + etiquetaEmpresa.toUpperCase());
-                    }
+                    holder.estado.setText(estado + " • " + etiquetaEmpresa);
                 } else {
                     holder.estado.setText(estado);
-                    if (holder.tercerizado != null) {
-                        holder.tercerizado.setVisibility(View.GONE);
-                    }
                 }
                 holder.direccion.setText(Html.fromHtml("<b>Dirección: </b>"+jsonObject.getString("direccion")));
                 holder.tiempo_total.setText(Html.fromHtml("<b>Tiempo Total: </b>"+jsonObject.getString("tiempototal")));
@@ -117,9 +110,9 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
                 }
                 if (esTercerizado) {
                     if (domiciliario.isEmpty()) {
-                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b><font color='#E65100'>Tercerizado (" + etiquetaEmpresa + ")</font>"));
+                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b><font color='#E65100'>" + etiquetaEmpresa + "</font>"));
                     } else {
-                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>" + domiciliario + " <font color='#E65100'>[" + etiquetaEmpresa + "]</font>"));
+                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>" + domiciliario + " <font color='#E65100'>(" + etiquetaEmpresa + ")</font>"));
                     }
                 } else {
                     holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>"+domiciliario));
@@ -148,7 +141,7 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView nombrecompleto,estado,direccion,origen, tiempo_total,transaccion,tiempoenruta,domiciliario,tercerizado;
+        TextView nombrecompleto,estado,direccion,origen, tiempo_total,transaccion,tiempoenruta,domiciliario;
 
 
         public ViewHolder(@NotNull View itemView) {
@@ -162,7 +155,6 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
             transaccion = itemView.findViewById(R.id.transaccion);
             tiempoenruta = itemView.findViewById(R.id.tiempoenruta);
             domiciliario = itemView.findViewById(R.id.domiciliario);
-            tercerizado = itemView.findViewById(R.id.tercerizado);
 
 
         }

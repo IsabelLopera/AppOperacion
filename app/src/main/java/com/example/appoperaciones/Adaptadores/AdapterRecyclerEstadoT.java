@@ -1,5 +1,6 @@
 package com.example.appoperaciones.Adaptadores;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,8 +42,26 @@ public class AdapterRecyclerEstadoT extends RecyclerView.Adapter<AdapterRecycler
             JSONObject jsonObject = new JSONObject(lista.get(position).toString());
 
             holder.tienda.setText(jsonObject.getString("tienda"));
-            holder.estado.setText(jsonObject.getString("estado"));
             holder.tiempopedido.setText(String.valueOf(jsonObject.getInt("tiempopedido")+" min."));
+
+            String estado = jsonObject.optString("estado", "DISPONIBLE");
+            String canalesBloq = jsonObject.optString("canales_bloqueados", "");
+
+            if (!canalesBloq.isEmpty()) {
+                if (canalesBloq.contains("TODOS") || "BLOQUEADA".equalsIgnoreCase(estado)) {
+                    holder.estado.setText("BLOQUEADA");
+                    holder.estado.setTextColor(Color.parseColor("#D32F2F")); // Rojo
+                } else {
+                    holder.estado.setText("BLOQ: " + canalesBloq);
+                    holder.estado.setTextColor(Color.parseColor("#E65100")); // Naranja oscuro
+                }
+            } else if ("BLOQUEADA".equalsIgnoreCase(estado)) {
+                holder.estado.setText("BLOQUEADA");
+                holder.estado.setTextColor(Color.parseColor("#D32F2F"));
+            } else {
+                holder.estado.setText("DISPONIBLE");
+                holder.estado.setTextColor(Color.parseColor("#2E7D32")); // Verde
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

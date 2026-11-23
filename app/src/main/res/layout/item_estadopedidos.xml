@@ -56,24 +56,6 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tercerizado"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
-                android:background="#FF9800"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                android:textSize="12sp"
-                android:text="DOMICILIO TERCERIZADO (RAPPI CARGO)"
-                android:visibility="gone" />
-
-            <TextView
                 android:id="@+id/nombrecompleto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

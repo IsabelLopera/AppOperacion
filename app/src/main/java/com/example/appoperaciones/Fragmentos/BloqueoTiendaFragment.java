@@ -300,15 +300,14 @@ public class BloqueoTiendaFragment extends Fragment {
                 for(int i = 0; lista_obtenida.length()> i; i++){
                     JSONObject jsonObject = lista_obtenida.getJSONObject(i);
 
+                    String canalesBloq = jsonObject.optString("canales_bloqueados", "");
                     if(evento.equals("Bloquear")){
-                        if(jsonObject.getString("estado").equals("DISPONIBLE")){
+                        if(!canalesBloq.contains("TODOS") && !jsonObject.getString("estado").equals("BLOQUEADA")){
                             lista.add(new Tienda(jsonObject.getInt("idtienda"),jsonObject.getString("tienda")));
-
                         }
                     }else{
-                        if(jsonObject.getString("estado").equals("BLOQUEADA")){
+                        if(!canalesBloq.isEmpty() || jsonObject.getString("estado").equals("BLOQUEADA")){
                             lista.add(new Tienda(jsonObject.getInt("idtienda"),jsonObject.getString("tienda")));
-
                         }
                     }
 

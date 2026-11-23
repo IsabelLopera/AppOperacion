@@ -84,11 +84,36 @@ public class EstadoTiendasFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerview);
         TextView textInfo=  view.findViewById(R.id.textInfo);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
-        AdapterRecyclerEstadoT adapterRecyclerEstadoT= new AdapterRecyclerEstadoT(MostrarDatos(),textInfo);
+        AdapterRecyclerEstadoT adapterRecyclerEstadoT= new AdapterRecyclerEstadoT(new ArrayList<>(),textInfo);
         recyclerView.setAdapter(adapterRecyclerEstadoT);
         adapterRecyclerEstadoT.updateEmptyView();
+        cargarDatosAsync(adapterRecyclerEstadoT);
         return  view;
 
+    }
+
+    private void cargarDatosAsync(AdapterRecyclerEstadoT adapter) {
+        new Thread(() -> {
+            try {
+                String resp = new CRUDTiempoPedido(getContext()).execute().get();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (isJSONArrayValid(resp)) {
+                            ArrayList<JsonObject> datos = new Gson().fromJson(resp, type);
+                            if (datos != null) {
+                                adapter.actualizarLista(datos);
+                            }
+                        } else {
+                            if (getContext() != null) {
+                                Toast.makeText(getContext(), "Error en el servicio", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public ArrayList<JsonObject> MostrarDatos(){

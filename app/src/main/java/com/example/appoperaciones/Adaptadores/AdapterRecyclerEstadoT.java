@@ -83,6 +83,13 @@ public class AdapterRecyclerEstadoT extends RecyclerView.Adapter<AdapterRecycler
         return lista.size();
     }
 
+    public void actualizarLista(ArrayList<JsonObject> nuevaLista) {
+        this.lista.clear();
+        this.lista.addAll(nuevaLista);
+        notifyDataSetChanged();
+        updateEmptyView();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tienda, estado, tiempopedido;

@@ -81,10 +81,36 @@ public class EstadoPedidoTFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_estado_pedido, container, false);
         recyclerView = view.findViewById(R.id.recyclerview);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
-        RecyclerTiendasAdapter recyclerEstadopAdapter= new RecyclerTiendasAdapter(MostrarDatos(),getContext());
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        ArrayList<JsonObject> listaInicial = new ArrayList<>();
+        RecyclerTiendasAdapter recyclerEstadopAdapter = new RecyclerTiendasAdapter(listaInicial, getContext());
         recyclerView.setAdapter(recyclerEstadopAdapter);
+        cargarDatosAsync(recyclerEstadopAdapter);
         return view;
+    }
+
+    private void cargarDatosAsync(RecyclerTiendasAdapter adapter) {
+        new Thread(() -> {
+            try {
+                String resp = new CRUDTiempoPedido(getContext()).execute().get();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (isJSONArrayValid(resp)) {
+                            ArrayList<JsonObject> datos = new Gson().fromJson(resp, type);
+                            if (datos != null) {
+                                adapter.actualizarLista(datos);
+                            }
+                        } else {
+                            if (getContext() != null) {
+                                Toast.makeText(getContext(), "Error en el servicio", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
 

@@ -78,6 +78,12 @@ public class RecyclerTiendasAdapter extends RecyclerView.Adapter<RecyclerTiendas
         return lista.size();
     }
 
+    public void actualizarLista(ArrayList<JsonObject> nuevaLista) {
+        this.lista.clear();
+        this.lista.addAll(nuevaLista);
+        notifyDataSetChanged();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView nombre_tienda;

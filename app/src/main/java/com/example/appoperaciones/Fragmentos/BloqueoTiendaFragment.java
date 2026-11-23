@@ -291,46 +291,50 @@ public class BloqueoTiendaFragment extends Fragment {
 
     public ArrayList<Tienda> MostrarDatos(String evento){
         ArrayList<Tienda> lista = new ArrayList<>();
+        lista.add(new Tienda(0,"Seleccionar"));
+        ArrayAdapter<Tienda> dataAdapter = new ArrayAdapter<Tienda>(getContext(),android.R.layout.simple_spinner_item,lista);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_tiendas.setAdapter(dataAdapter);
 
-        try {
-            lista.add(new Tienda(0,"Seleccionar"));
-            String resp =new CRUDTiempoPedido(getContext()).execute().get();
-            if(isJSONArrayValid(resp)){
-                JSONArray lista_obtenida = new JSONArray(resp);
-                for(int i = 0; lista_obtenida.length()> i; i++){
-                    JSONObject jsonObject = lista_obtenida.getJSONObject(i);
+        new Thread(() -> {
+            try {
+                String resp = new CRUDTiempoPedido(getContext()).execute().get();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if(isJSONArrayValid(resp)){
+                            try {
+                                JSONArray lista_obtenida = new JSONArray(resp);
+                                for(int i = 0; lista_obtenida.length()> i; i++){
+                                    JSONObject jsonObject = lista_obtenida.getJSONObject(i);
 
-                    String canalesBloq = jsonObject.optString("canales_bloqueados", "");
-                    if(evento.equals("Bloquear")){
-                        if(!canalesBloq.contains("TODOS") && !jsonObject.getString("estado").equals("BLOQUEADA")){
-                            lista.add(new Tienda(jsonObject.getInt("idtienda"),jsonObject.getString("tienda")));
+                                    String canalesBloq = jsonObject.optString("canales_bloqueados", "");
+                                    if(evento.equals("Bloquear")){
+                                        if(!canalesBloq.contains("TODOS") && !jsonObject.getString("estado").equals("BLOQUEADA")){
+                                            lista.add(new Tienda(jsonObject.getInt("idtienda"),jsonObject.getString("tienda")));
+                                        }
+                                    }else{
+                                        if(!canalesBloq.isEmpty() || jsonObject.getString("estado").equals("BLOQUEADA")){
+                                            lista.add(new Tienda(jsonObject.getInt("idtienda"),jsonObject.getString("tienda")));
+                                        }
+                                    }
+                                }
+                                dataAdapter.notifyDataSetChanged();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            if (getContext() != null) {
+                                Toast.makeText(getContext(),"Error en el servicio",Toast.LENGTH_LONG).show();
+                            }
                         }
-                    }else{
-                        if(!canalesBloq.isEmpty() || jsonObject.getString("estado").equals("BLOQUEADA")){
-                            lista.add(new Tienda(jsonObject.getInt("idtienda"),jsonObject.getString("tienda")));
-                        }
-                    }
-
-
+                    });
                 }
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            else {
-                Toast.makeText(getContext(),"Error en el servicio",Toast.LENGTH_LONG).show();
-            }
+        }).start();
 
-            ArrayAdapter<Tienda> dataAdapter = new ArrayAdapter<Tienda>(getContext(),android.R.layout.simple_spinner_item,lista);
-            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinner_tiendas.setAdapter(dataAdapter);
-
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return  lista;
+        return lista;
     }
 
     private boolean isJSONArrayValid(String jsonArrayString) {

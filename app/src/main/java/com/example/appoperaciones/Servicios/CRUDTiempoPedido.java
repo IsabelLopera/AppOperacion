@@ -34,6 +34,8 @@ public class CRUDTiempoPedido extends AsyncTask<String, Void, String> {
         try {
             URL url = new URL(connstr);
             http = (HttpURLConnection) url.openConnection();
+            http.setConnectTimeout(8000);
+            http.setReadTimeout(8000);
             http.setRequestMethod("POST");
             http.setDoInput(true);
             http.setDoOutput(true);

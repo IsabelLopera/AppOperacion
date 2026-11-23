@@ -70,32 +70,60 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
 
             JSONObject jsonObject = new JSONObject(lista.get(position).toString());
             String estado = jsonObject.getString("estatus");
+            String tercerizadoStr = jsonObject.optString("tercerizado", "N");
+            String empresaTercerizada = jsonObject.optString("empresatercerizada", "");
+            boolean esTercerizado = "S".equalsIgnoreCase(tercerizadoStr);
+            String etiquetaEmpresa = (!empresaTercerizada.trim().isEmpty()) ? empresaTercerizada : "Cargo";
 
             if(holder.getItemViewType() == VIEW_TYPE_ONE) {
-                holder.estado.setText(estado);
+                if (esTercerizado) {
+                    holder.estado.setText(estado + " [" + etiquetaEmpresa + "]");
+                } else {
+                    holder.estado.setText(estado);
+                }
                 holder.direccion.setText(jsonObject.getString("direccion"));
                 holder.tiempo_total.setText(jsonObject.getString("tiempototal"));
                 holder.transaccion.setText(jsonObject.getString("transaccion"));
                 holder.tiempoenruta.setText(jsonObject.getString("tiempoenruta"));
 
-                holder.estado.setBackgroundColor(Color.parseColor(ColorEstado1(estado)));
-                holder.direccion.setBackgroundColor(Color.parseColor(ColorEstado1(estado)));
-                holder.tiempo_total.setBackgroundColor(Color.parseColor(ColorEstado1(estado)));
-                holder.transaccion.setBackgroundColor(Color.parseColor(ColorEstado1(estado)));
-                holder.tiempoenruta.setBackgroundColor(Color.parseColor(ColorEstado1(estado)));
+                String colorFila = ColorEstado1(estado, esTercerizado);
+                holder.estado.setBackgroundColor(Color.parseColor(colorFila));
+                holder.direccion.setBackgroundColor(Color.parseColor(colorFila));
+                holder.tiempo_total.setBackgroundColor(Color.parseColor(colorFila));
+                holder.transaccion.setBackgroundColor(Color.parseColor(colorFila));
+                holder.tiempoenruta.setBackgroundColor(Color.parseColor(colorFila));
             }else{
 
-                holder.estado.setText(estado);
+                if (esTercerizado) {
+                    holder.estado.setText(estado + " [" + etiquetaEmpresa + "]");
+                    if (holder.tercerizado != null) {
+                        holder.tercerizado.setVisibility(View.VISIBLE);
+                        holder.tercerizado.setText("TERCERIZADO - " + etiquetaEmpresa.toUpperCase());
+                    }
+                } else {
+                    holder.estado.setText(estado);
+                    if (holder.tercerizado != null) {
+                        holder.tercerizado.setVisibility(View.GONE);
+                    }
+                }
                 holder.direccion.setText(Html.fromHtml("<b>Dirección: </b>"+jsonObject.getString("direccion")));
                 holder.tiempo_total.setText(Html.fromHtml("<b>Tiempo Total: </b>"+jsonObject.getString("tiempototal")));
                 holder.transaccion.setText(Html.fromHtml("<b>Pedido # </b>"+jsonObject.getString("transaccion")));
                 holder.tiempoenruta.setText(Html.fromHtml("<b>Tiempo en ruta: </b>"+jsonObject.getString("tiempoenruta")));
-                holder.estado.setBackgroundColor(Color.parseColor(ColorEstado2(estado)));
-                String domiciliario  =jsonObject.getString("domiciliario");
-                if(domiciliario == "null"){
-                    domiciliario =  "";
+                holder.estado.setBackgroundColor(Color.parseColor(ColorEstado2(estado, esTercerizado)));
+                String domiciliario = jsonObject.optString("domiciliario", "");
+                if(domiciliario.equals("null")){
+                    domiciliario = "";
                 }
-                holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>"+domiciliario));
+                if (esTercerizado) {
+                    if (domiciliario.isEmpty()) {
+                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b><font color='#E65100'>Tercerizado (" + etiquetaEmpresa + ")</font>"));
+                    } else {
+                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>" + domiciliario + " <font color='#E65100'>[" + etiquetaEmpresa + "]</font>"));
+                    }
+                } else {
+                    holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>"+domiciliario));
+                }
                 holder.origen.setText(Html.fromHtml("<b>Origen: </b>"+jsonObject.getString("tomadordepedido")));
                 holder.nombrecompleto.setText(Html.fromHtml("<b>Cliente: </b>"+jsonObject.getString("nombrecompleto")));
 
@@ -120,7 +148,7 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView nombrecompleto,estado,direccion,origen, tiempo_total,transaccion,tiempoenruta,domiciliario;
+        TextView nombrecompleto,estado,direccion,origen, tiempo_total,transaccion,tiempoenruta,domiciliario,tercerizado;
 
 
         public ViewHolder(@NotNull View itemView) {
@@ -134,12 +162,16 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
             transaccion = itemView.findViewById(R.id.transaccion);
             tiempoenruta = itemView.findViewById(R.id.tiempoenruta);
             domiciliario = itemView.findViewById(R.id.domiciliario);
+            tercerizado = itemView.findViewById(R.id.tercerizado);
 
 
         }
     }
 
-    private String ColorEstado1(String estado){
+    private String ColorEstado1(String estado, boolean esTercerizado){
+        if (esTercerizado) {
+            return "#FFE0B2"; // Naranja claro para pedidos de Cargo / tercerizados
+        }
         String color = "#FFFFFFFF";
         switch (estado){
             case  "Esperando":
@@ -168,7 +200,10 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
 
     }
 
-    private String ColorEstado2(String estado){
+    private String ColorEstado2(String estado, boolean esTercerizado){
+        if (esTercerizado) {
+            return "#FF9800"; // Naranja Cargo
+        }
         String color = "#313132";
         switch (estado){
             case  "Esperando":

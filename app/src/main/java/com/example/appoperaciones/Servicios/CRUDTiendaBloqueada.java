@@ -29,9 +29,10 @@ public class CRUDTiendaBloqueada extends AsyncTask<String, Void, String> {
         String result = "";
         String idoperacion  =parametros[0];
         String idtienda  =parametros[1];
-        String observacion  =parametros[2];
-        String motivo  =parametros[3];
-        String desbloqueoen  =parametros[4];
+        String observacion  =parametros.length > 2 ? parametros[2] : "";
+        String motivo  =parametros.length > 3 ? parametros[3] : "";
+        String desbloqueoen  =parametros.length > 4 ? parametros[4] : "";
+        String canales = (parametros.length > 5 && parametros[5] != null && !parametros[5].trim().isEmpty()) ? parametros[5] : "TODOS";
 
         String connstr = "https://tiendapizzaamericana.co/ProyectoPizzaAmericana/CRUDTiendaBloqueada";
         HttpURLConnection http = null;
@@ -48,16 +49,18 @@ public class CRUDTiendaBloqueada extends AsyncTask<String, Void, String> {
 
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops,"UTF-8"));
             String data ="";
-       /*     if(idoperacion.equals("1")){
-                data = "idoperacion="+idoperacion+"&"+"idtienda="+idtienda+"&observacion="+observacion+"&motivo="+motivo+"&desbloqueoen="+desbloqueoen;
-            }else{
-                data = "idoperacion="+idoperacion+"&"+"idtienda="+idtienda;
-            }
-*/
+
            if(idoperacion.equals("1")){
-                data = URLEncoder.encode("idoperacion","UTF-8")+"="+idoperacion+"&"+URLEncoder.encode("idtienda","UTF-8")+"="+URLEncoder.encode(idtienda,"UTF-8")+"&"+URLEncoder.encode("observacion","UTF-8")+"="+URLEncoder.encode(observacion,"UTF-8")+"&"+URLEncoder.encode("motivo","UTF-8")+"="+motivo+"&"+URLEncoder.encode("desbloqueoen","UTF-8")+"="+URLEncoder.encode(desbloqueoen,"UTF-8");
+                data = URLEncoder.encode("idoperacion","UTF-8")+"="+idoperacion
+                        +"&"+URLEncoder.encode("idtienda","UTF-8")+"="+URLEncoder.encode(idtienda,"UTF-8")
+                        +"&"+URLEncoder.encode("observacion","UTF-8")+"="+URLEncoder.encode(observacion,"UTF-8")
+                        +"&"+URLEncoder.encode("motivo","UTF-8")+"="+URLEncoder.encode(motivo,"UTF-8")
+                        +"&"+URLEncoder.encode("desbloqueoen","UTF-8")+"="+URLEncoder.encode(desbloqueoen,"UTF-8")
+                        +"&"+URLEncoder.encode("canales","UTF-8")+"="+URLEncoder.encode(canales,"UTF-8");
             }else{
-                data = URLEncoder.encode("idoperacion","UTF-8")+"="+idoperacion+"&"+URLEncoder.encode("idtienda","UTF-8")+"="+URLEncoder.encode(idtienda,"UTF-8");
+                data = URLEncoder.encode("idoperacion","UTF-8")+"="+idoperacion
+                        +"&"+URLEncoder.encode("idtienda","UTF-8")+"="+URLEncoder.encode(idtienda,"UTF-8")
+                        +"&"+URLEncoder.encode("canal","UTF-8")+"="+URLEncoder.encode(canales,"UTF-8");
             }
 
             writer.write(data);

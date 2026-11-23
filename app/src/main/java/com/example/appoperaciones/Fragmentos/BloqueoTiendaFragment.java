@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -62,6 +64,11 @@ public class BloqueoTiendaFragment extends Fragment {
     Spinner spinner_motivo;
     Spinner spinner_Desbloqueo;
     Spinner spinner_evento;
+    CheckBox chkCanalTodos;
+    CheckBox chkCanalBot;
+    CheckBox chkCanalTiendaVirtual;
+    CheckBox chkCanalCallCenter;
+    CheckBox chkCanalPos;
     public BloqueoTiendaFragment() {
         // Required empty public constructor
     }
@@ -152,6 +159,33 @@ public class BloqueoTiendaFragment extends Fragment {
             }
         });
 
+        chkCanalTodos = view.findViewById(R.id.chk_canal_todos);
+        chkCanalBot = view.findViewById(R.id.chk_canal_bot);
+        chkCanalTiendaVirtual = view.findViewById(R.id.chk_canal_tienda_virtual);
+        chkCanalCallCenter = view.findViewById(R.id.chk_canal_call_center);
+        chkCanalPos = view.findViewById(R.id.chk_canal_pos);
+
+        chkCanalTodos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    chkCanalBot.setChecked(true);
+                    chkCanalBot.setEnabled(false);
+                    chkCanalTiendaVirtual.setChecked(true);
+                    chkCanalTiendaVirtual.setEnabled(false);
+                    chkCanalCallCenter.setChecked(true);
+                    chkCanalCallCenter.setEnabled(false);
+                    chkCanalPos.setChecked(true);
+                    chkCanalPos.setEnabled(false);
+                } else {
+                    chkCanalBot.setEnabled(true);
+                    chkCanalTiendaVirtual.setEnabled(true);
+                    chkCanalCallCenter.setEnabled(true);
+                    chkCanalPos.setEnabled(true);
+                }
+            }
+        });
+
         guardar_cambios.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,7 +211,8 @@ public class BloqueoTiendaFragment extends Fragment {
                                     idoperacion = "3";
                                 }
 
-                                String  resp = new CRUDTiendaBloqueada(getContext()).execute(idoperacion,String.valueOf(value_idtienda),value_Observacion,value_motivo,value_Desbloqueo).get();
+                                String canalesParam = value_evento.equals("Bloquear") ? obtenerCanalesSeleccionados() : "TODOS";
+                                String  resp = new CRUDTiendaBloqueada(getContext()).execute(idoperacion,String.valueOf(value_idtienda),value_Observacion,value_motivo,value_Desbloqueo,canalesParam).get();
                                 if(isJSONArrayValid(resp)){
                                     String json = new JSONArray(resp).getJSONObject(0).getString("resultado");
 
@@ -192,6 +227,7 @@ public class BloqueoTiendaFragment extends Fragment {
 
                                 observacion.setText("");
                                 spinner_motivo.setSelection(0);
+                                chkCanalTodos.setChecked(true);
                                 MostrarDatos(value_evento);
                             } catch (ExecutionException e) {
                                 e.printStackTrace();
@@ -206,6 +242,11 @@ public class BloqueoTiendaFragment extends Fragment {
                     builder.setNegativeButton("Cancelar",null);
                 if (value_evento.equals("Bloquear")) {
                     if(!spinner_tiendas.getSelectedItem().toString().equals("Seleccionar") && !spinner_motivo.getSelectedItem().equals("Seleccionar")){
+                        String canalesVal = obtenerCanalesSeleccionados();
+                        if (canalesVal.isEmpty()) {
+                            Toast.makeText(getContext(),"Debes seleccionar al menos un canal a bloquear",Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         builder.show();
 
                     }else{
@@ -225,6 +266,27 @@ public class BloqueoTiendaFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    private String obtenerCanalesSeleccionados() {
+        if (chkCanalTodos != null && chkCanalTodos.isChecked()) {
+            return "TODOS";
+        }
+        ArrayList<String> canales = new ArrayList<>();
+        if (chkCanalBot != null && chkCanalBot.isChecked()) canales.add("BOT");
+        if (chkCanalTiendaVirtual != null && chkCanalTiendaVirtual.isChecked()) canales.add("TIENDA_VIRTUAL");
+        if (chkCanalCallCenter != null && chkCanalCallCenter.isChecked()) canales.add("CALL_CENTER");
+        if (chkCanalPos != null && chkCanalPos.isChecked()) canales.add("POS");
+
+        if (canales.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < canales.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(canales.get(i));
+        }
+        return sb.toString();
     }
 
     public ArrayList<Tienda> MostrarDatos(String evento){

@@ -8,9 +8,13 @@
     card_view:cardUseCompatPadding="true"
     android:layout_margin="15dp">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
    <LinearLayout
        android:layout_width="match_parent"
-       android:layout_height="match_parent"
+       android:layout_height="wrap_content"
        android:orientation="vertical"
        android:padding="15dp"
        >
@@ -58,7 +62,7 @@
        <LinearLayout
            android:id="@+id/opciones_bloq"
            android:layout_width="match_parent"
-           android:layout_height="match_parent"
+           android:layout_height="wrap_content"
            android:orientation="vertical">
        <TextView
            android:layout_marginTop="8dp"
@@ -103,8 +107,69 @@
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
            android:layout_marginTop="8dp"
-
            android:entries="@array/Desbloqueo"/>
+
+       <TextView
+           android:layout_marginTop="10dp"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="Canales a bloquear"
+           android:textSize="18sp"
+           android:textStyle="bold"
+           android:textColor="@color/black"/>
+
+       <CheckBox
+           android:id="@+id/chk_canal_todos"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="Todos los canales (General)"
+           android:checked="true"
+           android:textSize="15sp"
+           android:layout_marginTop="4dp"/>
+
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:orientation="vertical"
+           android:layout_marginLeft="16dp">
+
+           <CheckBox
+               android:id="@+id/chk_canal_bot"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="Bot WhatsApp"
+               android:checked="true"
+               android:enabled="false"
+               android:textSize="14sp"/>
+
+           <CheckBox
+               android:id="@+id/chk_canal_tienda_virtual"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="Tienda Virtual (Web)"
+               android:checked="true"
+               android:enabled="false"
+               android:textSize="14sp"/>
+
+           <CheckBox
+               android:id="@+id/chk_canal_call_center"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="Call Center"
+               android:checked="true"
+               android:enabled="false"
+               android:textSize="14sp"/>
+
+           <CheckBox
+               android:id="@+id/chk_canal_pos"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="POS (Caja en tienda)"
+               android:checked="true"
+               android:enabled="false"
+               android:textSize="14sp"/>
+       </LinearLayout>
+
        </LinearLayout>
 <Button
     android:id="@+id/guardar"
@@ -119,5 +184,6 @@
 
 </Button>
    </LinearLayout>
+    </ScrollView>
 </androidx.cardview.widget.CardView>
 

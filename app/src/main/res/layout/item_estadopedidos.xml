@@ -31,19 +31,42 @@
                 android:textColor="@color/white"
                 android:textSize="15sp" />
 
-            <TextView
-                android:id="@+id/estado"
+            <LinearLayout
+                android:id="@+id/layout_estado_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
-                android:gravity="center_horizontal"
-                android:paddingTop="8dp"
-                android:padding="10dp"
-                android:paddingBottom="8dp"
                 android:layout_weight="1"
-                android:textColor="@color/white"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:id="@+id/estado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/badge_cargo_card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/badge_cargo"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:text="Rappi Cargo"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

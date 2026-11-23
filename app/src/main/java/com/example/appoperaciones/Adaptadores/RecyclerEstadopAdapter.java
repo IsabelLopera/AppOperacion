@@ -76,10 +76,16 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
             String etiquetaEmpresa = (!empresaTercerizada.trim().isEmpty()) ? empresaTercerizada : "Cargo";
 
             if(holder.getItemViewType() == VIEW_TYPE_ONE) {
+                holder.estado.setText(estado);
                 if (esTercerizado) {
-                    holder.estado.setText(estado + " • " + etiquetaEmpresa);
+                    if (holder.badge_cargo != null) {
+                        holder.badge_cargo.setVisibility(View.VISIBLE);
+                        holder.badge_cargo.setText("Rappi Cargo");
+                    }
                 } else {
-                    holder.estado.setText(estado);
+                    if (holder.badge_cargo != null) {
+                        holder.badge_cargo.setVisibility(View.GONE);
+                    }
                 }
                 holder.direccion.setText(jsonObject.getString("direccion"));
                 holder.tiempo_total.setText(jsonObject.getString("tiempototal"));
@@ -87,32 +93,48 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
                 holder.tiempoenruta.setText(jsonObject.getString("tiempoenruta"));
 
                 String colorFila = ColorEstado1(estado, esTercerizado);
-                holder.estado.setBackgroundColor(Color.parseColor(colorFila));
+                if (holder.layout_col_estado != null) {
+                    holder.layout_col_estado.setBackgroundColor(Color.parseColor(colorFila));
+                    holder.estado.setBackgroundColor(Color.TRANSPARENT);
+                } else {
+                    holder.estado.setBackgroundColor(Color.parseColor(colorFila));
+                }
                 holder.direccion.setBackgroundColor(Color.parseColor(colorFila));
                 holder.tiempo_total.setBackgroundColor(Color.parseColor(colorFila));
                 holder.transaccion.setBackgroundColor(Color.parseColor(colorFila));
                 holder.tiempoenruta.setBackgroundColor(Color.parseColor(colorFila));
             }else{
 
+                holder.estado.setText(estado);
                 if (esTercerizado) {
-                    holder.estado.setText(estado + " • " + etiquetaEmpresa);
+                    if (holder.badge_cargo_card != null) {
+                        holder.badge_cargo_card.setVisibility(View.VISIBLE);
+                        holder.badge_cargo_card.setText("Rappi Cargo");
+                    }
                 } else {
-                    holder.estado.setText(estado);
+                    if (holder.badge_cargo_card != null) {
+                        holder.badge_cargo_card.setVisibility(View.GONE);
+                    }
                 }
                 holder.direccion.setText(Html.fromHtml("<b>Dirección: </b>"+jsonObject.getString("direccion")));
                 holder.tiempo_total.setText(Html.fromHtml("<b>Tiempo Total: </b>"+jsonObject.getString("tiempototal")));
                 holder.transaccion.setText(Html.fromHtml("<b>Pedido # </b>"+jsonObject.getString("transaccion")));
                 holder.tiempoenruta.setText(Html.fromHtml("<b>Tiempo en ruta: </b>"+jsonObject.getString("tiempoenruta")));
-                holder.estado.setBackgroundColor(Color.parseColor(ColorEstado2(estado, esTercerizado)));
+                String colorHeader = ColorEstado2(estado, esTercerizado);
+                if (holder.layout_estado_card != null) {
+                    holder.layout_estado_card.setBackgroundColor(Color.parseColor(colorHeader));
+                } else {
+                    holder.estado.setBackgroundColor(Color.parseColor(colorHeader));
+                }
                 String domiciliario = jsonObject.optString("domiciliario", "");
                 if(domiciliario.equals("null")){
                     domiciliario = "";
                 }
                 if (esTercerizado) {
                     if (domiciliario.isEmpty()) {
-                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b><font color='#E65100'>" + etiquetaEmpresa + "</font>"));
+                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b><font color='#D84315'>Rappi Cargo</font>"));
                     } else {
-                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>" + domiciliario + " <font color='#E65100'>(" + etiquetaEmpresa + ")</font>"));
+                        holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>" + domiciliario + " <font color='#D84315'>(Rappi Cargo)</font>"));
                     }
                 } else {
                     holder.domiciliario.setText(Html.fromHtml("<b>Domiciliario: </b>"+domiciliario));
@@ -142,6 +164,8 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView nombrecompleto,estado,direccion,origen, tiempo_total,transaccion,tiempoenruta,domiciliario;
+        TextView badge_cargo, badge_cargo_card;
+        View layout_col_estado, layout_estado_card;
 
 
         public ViewHolder(@NotNull View itemView) {
@@ -155,6 +179,10 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
             transaccion = itemView.findViewById(R.id.transaccion);
             tiempoenruta = itemView.findViewById(R.id.tiempoenruta);
             domiciliario = itemView.findViewById(R.id.domiciliario);
+            badge_cargo = itemView.findViewById(R.id.badge_cargo);
+            badge_cargo_card = itemView.findViewById(R.id.badge_cargo_card);
+            layout_col_estado = itemView.findViewById(R.id.layout_col_estado);
+            layout_estado_card = itemView.findViewById(R.id.layout_estado_card);
 
 
         }
@@ -193,9 +221,6 @@ public class RecyclerEstadopAdapter  extends RecyclerView.Adapter<RecyclerEstado
     }
 
     private String ColorEstado2(String estado, boolean esTercerizado){
-        if (esTercerizado) {
-            return "#FF9800"; // Naranja Cargo
-        }
         String color = "#313132";
         switch (estado){
             case  "Esperando":

@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -74,6 +75,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
     String idencuesta;
     boolean is_observ;
     ArrayList<JSONObject> ListElement = new ArrayList<>();
+    private boolean encuestaEnviada = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,11 +108,17 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
         SharedPreferences draftPrefs = getSharedPreferences("draft_encuestas", MODE_PRIVATE);
         String draftKey = "draft_" + (idencuesta != null ? idencuesta : "0") + "_" + (idtienda != null ? idtienda : "0");
 
+        long draftTime = draftPrefs.getLong(draftKey + "_timestamp", 0L);
+        long seisHorasMs = 6L * 60L * 60L * 1000L;
+        boolean borradorValido = (draftTime > 0L) && ((System.currentTimeMillis() - draftTime) < seisHorasMs);
+
         String savedJson = null;
         if (savedInstanceState != null && savedInstanceState.containsKey("saved_lista")) {
             savedJson = savedInstanceState.getString("saved_lista");
-        } else if (draftPrefs.contains(draftKey)) {
+        } else if (borradorValido && draftPrefs.contains(draftKey)) {
             savedJson = draftPrefs.getString(draftKey, null);
+        } else if (!borradorValido && draftPrefs.contains(draftKey)) {
+            limpiarBorrador();
         }
 
         if (savedJson != null && !savedJson.isEmpty()) {
@@ -173,7 +181,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
             savedNombreRecibe = savedInstanceState.getString("saved_nombre_recibe", null);
             savedCargoRecibe = savedInstanceState.getString("saved_cargo_recibe", null);
             savedMedidas = savedInstanceState.getString("saved_medidas_correctivas", null);
-        } else if (draftPrefs.contains(draftKey + "_nombre")) {
+        } else if (borradorValido && draftPrefs.contains(draftKey + "_nombre")) {
             savedNombreRecibe = draftPrefs.getString(draftKey + "_nombre", null);
             savedCargoRecibe = draftPrefs.getString(draftKey + "_cargo", null);
             savedMedidas = draftPrefs.getString(draftKey + "_medidas", null);
@@ -368,7 +376,9 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        guardarBorrador();
+        if (!encuestaEnviada && !isFinishing()) {
+            guardarBorrador();
+        }
     }
 
     @Override
@@ -389,6 +399,8 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
     }
 
     private void guardarBorrador() {
+        if (encuestaEnviada || isFinishing()) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed()) return;
         if (idencuesta == null || idtienda == null) return;
         if (recyclerEncuestaTienda == null || recyclerEncuestaTienda.getLista() == null) return;
         try {
@@ -396,6 +408,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
             String draftKey = "draft_" + idencuesta + "_" + idtienda;
             SharedPreferences.Editor editor = draftPrefs.edit();
             editor.putString(draftKey, recyclerEncuestaTienda.getLista().toString());
+            editor.putLong(draftKey + "_timestamp", System.currentTimeMillis());
             if (etNombreRecibe != null) {
                 editor.putString(draftKey + "_nombre", etNombreRecibe.getText().toString());
             }
@@ -417,6 +430,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
         String draftKey = "draft_" + idencuesta + "_" + idtienda;
         draftPrefs.edit()
                 .remove(draftKey)
+                .remove(draftKey + "_timestamp")
                 .remove(draftKey + "_nombre")
                 .remove(draftKey + "_cargo")
                 .remove(draftKey + "_medidas")
@@ -427,7 +441,9 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NotNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                guardarBorrador();
+                if (!encuestaEnviada && !isFinishing()) {
+                    guardarBorrador();
+                }
                 finish();
                 return true;
         }
@@ -436,7 +452,9 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        guardarBorrador();
+        if (!encuestaEnviada && !isFinishing()) {
+            guardarBorrador();
+        }
         super.onBackPressed();
     }
 
@@ -556,6 +574,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                encuestaEnviada = true;
                 limpiarBorrador();
                 finish();
                 dialogInterface.dismiss();
@@ -606,6 +625,8 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
                             if(dialog.isShowing()){
                                 dialog.dismiss();
                             }
+                            encuestaEnviada = true;
+                            limpiarBorrador();
                             builder.setMessage(result);
                             builder.show();
 

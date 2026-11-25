@@ -60,7 +60,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
     ArrayList<JsonObject> datos = new ArrayList<>();
     RecyclerView recyclerView;
     NestedScrollView nestedScrollView;
-    public static  RecyclerEncuestaTienda recyclerEncuestaTienda;
+    private RecyclerEncuestaTienda recyclerEncuestaTienda;
     Button enviarEncuestas;
     LinearLayout layoutTotal;
     TextView tvTotalPorcentaje, tvRangoCumplimiento;
@@ -106,7 +106,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
 
         ArrayList<JSONObject> datosJSONObject = new ArrayList<>();
         SharedPreferences draftPrefs = getSharedPreferences("draft_encuestas", MODE_PRIVATE);
-        String draftKey = "draft_" + (idencuesta != null ? idencuesta : "0") + "_" + (idtienda != null ? idtienda : "0");
+        String draftKey = getDraftKey();
 
         long draftTime = draftPrefs.getLong(draftKey + "_timestamp", 0L);
         long seisHorasMs = 6L * 60L * 60L * 1000L;
@@ -189,12 +189,24 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
 
         if (savedNombreRecibe != null && etNombreRecibe != null) {
             etNombreRecibe.setText(savedNombreRecibe);
+        } else if (etNombreRecibe != null) {
+            etNombreRecibe.setText("");
         }
         if (savedCargoRecibe != null && etCargoRecibe != null) {
             etCargoRecibe.setText(savedCargoRecibe);
+        } else if (etCargoRecibe != null) {
+            etCargoRecibe.setText("");
         }
         if (savedMedidas != null && etMedidasCorrectivas != null) {
             etMedidasCorrectivas.setText(savedMedidas);
+        } else if (etMedidasCorrectivas != null) {
+            etMedidasCorrectivas.setText("");
+        }
+        if (signatureView != null) {
+            signatureView.clear();
+        }
+        if (signatureViewInspector != null) {
+            signatureViewInspector.clear();
         }
 
         if (etNombreRecibe != null) {
@@ -398,6 +410,12 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
         }
     }
 
+    private String getDraftKey() {
+        String enc = (idencuesta != null) ? idencuesta.trim() : "0";
+        String tie = (idtienda != null) ? idtienda.trim() : "0";
+        return "draft_" + enc + "_" + tie;
+    }
+
     private void guardarBorrador() {
         if (encuestaEnviada || isFinishing()) return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed()) return;
@@ -405,7 +423,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
         if (recyclerEncuestaTienda == null || recyclerEncuestaTienda.getLista() == null) return;
         try {
             SharedPreferences draftPrefs = getSharedPreferences("draft_encuestas", MODE_PRIVATE);
-            String draftKey = "draft_" + idencuesta + "_" + idtienda;
+            String draftKey = getDraftKey();
             SharedPreferences.Editor editor = draftPrefs.edit();
             editor.putString(draftKey, recyclerEncuestaTienda.getLista().toString());
             editor.putLong(draftKey + "_timestamp", System.currentTimeMillis());
@@ -418,23 +436,26 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
             if (etMedidasCorrectivas != null) {
                 editor.putString(draftKey + "_medidas", etMedidasCorrectivas.getText().toString());
             }
-            editor.apply();
+            editor.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void limpiarBorrador() {
-        if (idencuesta == null || idtienda == null) return;
-        SharedPreferences draftPrefs = getSharedPreferences("draft_encuestas", MODE_PRIVATE);
-        String draftKey = "draft_" + idencuesta + "_" + idtienda;
-        draftPrefs.edit()
-                .remove(draftKey)
-                .remove(draftKey + "_timestamp")
-                .remove(draftKey + "_nombre")
-                .remove(draftKey + "_cargo")
-                .remove(draftKey + "_medidas")
-                .apply();
+        try {
+            SharedPreferences draftPrefs = getSharedPreferences("draft_encuestas", MODE_PRIVATE);
+            String draftKey = getDraftKey();
+            draftPrefs.edit()
+                    .remove(draftKey)
+                    .remove(draftKey + "_timestamp")
+                    .remove(draftKey + "_nombre")
+                    .remove(draftKey + "_cargo")
+                    .remove(draftKey + "_medidas")
+                    .commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -567,85 +588,88 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
         nestedScrollView.smoothScrollTo(0, Math.max(0, scrollY - 60));
     }
 
-    public void InsertarEncabezadoEncuestaTiendas(){
-        //dialogo de confirmacion
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Proceso finalizado.");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                encuestaEnviada = true;
-                limpiarBorrador();
-                finish();
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setCancelable(false);
-//dialogo de carga...
+    public void InsertarEncabezadoEncuestaTiendas() {
         Dialog dialog = new Dialog(this, R.style.CustomAlertDialog);
         dialog.setContentView(R.layout.custom_dialog);
+        dialog.setCancelable(false);
         dialog.show();
-        InsertarEncabezadoEncuestaTiendasAPP service =new InsertarEncabezadoEncuestaTiendasAPP(this);
+
+        InsertarEncabezadoEncuestaTiendasAPP service = new InsertarEncabezadoEncuestaTiendasAPP(this);
         service.setAsyncTaskListener(result -> {
-            if (!result.contains("Error en servicio")) {
+            if (result != null && !result.contains("Error en servicio")) {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
+                    if (!jsonObject.has("idempleadoencuesta")) {
+                        if (dialog.isShowing()) dialog.dismiss();
+                        mostrarDialogoError("No se recibió confirmación del identificador de la encuesta: " + result);
+                        return;
+                    }
                     String idempleadoencuesta = jsonObject.getString("idempleadoencuesta");
+
                     // Recorrer la lista de elementos
-                    int count = 0;
-
                     for (JSONObject item : ListElement) {
-
                         String valorseleccionado = "";
                         double valor = item.getDouble("valordefecto");
-                        String  observacion = item.getString("observacion");
+                        String observacion = item.optString("observacion", "");
 
-                        if(observacion.isEmpty()){
+                        if (observacion.isEmpty()) {
                             if (valor == Math.floor(valor)) {
-                                valorseleccionado = String.valueOf((int)valor);
-                            }else{
+                                valorseleccionado = String.valueOf((int) valor);
+                            } else {
                                 valorseleccionado = String.valueOf(valor);
                             }
-                        }else{
+                        } else {
                             valorseleccionado = observacion;
                         }
 
-                        item.put("valor",valorseleccionado);
-                        item.put("idempleadoencuesta",idempleadoencuesta);
-
-
+                        item.put("valor", valorseleccionado);
+                        item.put("idempleadoencuesta", idempleadoencuesta);
                     }
 
-                    InsertarDetalleEncuestaTiendasAPP service2 =new InsertarDetalleEncuestaTiendasAPP(getApplicationContext());
+                    InsertarDetalleEncuestaTiendasAPP service2 = new InsertarDetalleEncuestaTiendasAPP(getApplicationContext());
                     service2.setAsyncTaskListener(new AsyncTaskListener() {
-
                         @Override
-                        public void datos(String result) {
-
-                            if(dialog.isShowing()){
+                        public void datos(boolean exito, String mensaje) {
+                            if (dialog.isShowing()) {
                                 dialog.dismiss();
                             }
-                            encuestaEnviada = true;
-                            limpiarBorrador();
-                            builder.setMessage(result);
-                            builder.show();
+                            if (exito) {
+                                // Éxito validado directamente de la respuesta del servidor
+                                encuestaEnviada = true;
+                                limpiarBorrador();
 
+                                AlertDialog.Builder builderExito = new AlertDialog.Builder(EncuestaTiendaActivity.this);
+                                builderExito.setTitle("Proceso finalizado");
+                                builderExito.setMessage(mensaje);
+                                builderExito.setCancelable(false);
+                                builderExito.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                        finish();
+                                    }
+                                });
+                                builderExito.show();
+                            } else {
+                                // Error reportado por el servidor al registrar el detalle
+                                encuestaEnviada = false;
+                                mostrarDialogoError(mensaje);
+                            }
                         }
                     });
 
-                    service2.execute(ListElement.toString()).get();
-
+                    service2.execute(ListElement.toString());
 
                 } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "Error en el servicio", Toast.LENGTH_LONG).show();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    if (dialog.isShowing()) dialog.dismiss();
+                    mostrarDialogoError("Error al procesar la respuesta del encabezado: " + e.getMessage());
+                } catch (Exception e) {
+                    if (dialog.isShowing()) dialog.dismiss();
+                    mostrarDialogoError("Ocurrió un error inesperado al registrar la encuesta: " + e.getMessage());
                 }
-
-            }else{
-                Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+            } else {
+                if (dialog.isShowing()) dialog.dismiss();
+                mostrarDialogoError(result != null ? result : "Error de comunicación con el servidor al registrar el encabezado.");
             }
         });
 
@@ -656,7 +680,19 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
         String firmaInspectorBase64 = signatureViewInspector != null ? signatureViewInspector.getBase64Signature() : "";
 
         service.execute(idtienda, idempleado, idencuesta, nombreRecibe, cargoRecibe, medidasCorrectivas, firmaBase64, firmaInspectorBase64);
+    }
 
+    private void mostrarDialogoError(String mensaje) {
+        AlertDialog.Builder builderError = new AlertDialog.Builder(this);
+        builderError.setTitle("Error al enviar encuesta");
+        builderError.setMessage(mensaje + "\n\nSus respuestas no se han perdido. Verifique su conexión y vuelva a presionar 'Enviar Encuesta'.");
+        builderError.setPositiveButton("Entendido", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builderError.show();
     }
 
     private void cargarEmpleadosTienda(String tiendaId) {
@@ -697,7 +733,7 @@ public class EncuestaTiendaActivity extends AppCompatActivity {
     }
 
     public interface AsyncTaskListener {
-        void datos(String result);
+        void datos(boolean exito, String result);
     }
 
 /*

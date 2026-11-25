@@ -43,25 +43,30 @@ public class InsertarDetalleEncuestaTiendasAPP extends AsyncTask<String, Void, S
         super.onPostExecute(s);
 
         if (asyncTaskListener != null) {
-            if (!s.contains("Error en servicio")) {
+            boolean exito = false;
+            String mensaje = s;
+            if (s != null && !s.contains("Error en servicio")) {
 
                 try {
                     JSONObject ob = new JSONObject(s);
-                    if (ob.getBoolean("success")) {
-                        s = "La encuesta se registró con éxito.";
+                    if (ob.optBoolean("success", false)) {
+                        exito = true;
+                        mensaje = "La encuesta se registró con éxito.";
                     } else if (ob.has("failed_count")) {
-                        s = "Registro incompleto. Se presentó un problema al intentar insertar " +
+                        mensaje = "Registro incompleto. Se presentó un problema al intentar insertar " +
                                 ob.getInt("failed_count") + " de las respuestas.";
                     } else {
-                        s = "Algo falló mientras se intentaba registrar las respuestas.";
+                        mensaje = "Algo falló mientras se intentaba registrar las respuestas en el servidor.";
                     }
 
                 } catch (JSONException e) {
-                    s = "Ocurrio un problema con la respuesta del servicio, verifique si la encuesta fue registrada correctamente.";
+                    mensaje = "Ocurrio un problema con la respuesta del servicio, verifique si la encuesta fue registrada correctamente.";
                 }
 
+            } else {
+                mensaje = (s != null) ? s : "Error en servicio al registrar detalles de la encuesta.";
             }
-            asyncTaskListener.datos(s);
+            asyncTaskListener.datos(exito, mensaje);
         }
     }
 
